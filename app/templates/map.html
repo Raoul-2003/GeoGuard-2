@@ -68,12 +68,12 @@
         </div>
 
         <!-- Floating Layers Panel (Left next to tools) -->
-        <div class="absolute top-4 left-16 z-10 w-64 bg-white/95 backdrop-blur border border-gray-200 rounded-[10px] shadow-md flex flex-col max-h-[calc(100%-120px)] overflow-hidden">
-            <div class="bg-gray-50 px-3 py-2 border-b border-gray-200 flex items-center justify-between">
+        <div id="layers-panel" class="absolute top-4 left-16 z-10 w-64 bg-white/95 backdrop-blur border border-gray-200 rounded-[10px] shadow-md flex flex-col max-h-[calc(100%-120px)] overflow-hidden transition-all duration-300">
+            <div class="bg-gray-50 px-3 py-2 border-b border-gray-200 flex items-center justify-between cursor-pointer" onclick="document.getElementById('layers-content').classList.toggle('hidden')">
                 <span class="text-xs font-bold text-text-main uppercase tracking-wider">GESTION DES COUCHES</span>
-                <button class="text-text-muted hover:text-text-main"><span class="material-symbols-outlined text-[16px]">layers</span></button>
+                <button class="text-text-muted hover:text-text-main"><span class="material-symbols-outlined text-[16px]">expand_more</span></button>
             </div>
-            <div class="overflow-y-auto p-3 space-y-4 text-sm custom-scrollbar">
+            <div id="layers-content" class="overflow-y-auto p-3 space-y-4 text-sm custom-scrollbar hidden md:block">
                 <!-- Category 1 -->
                 <div>
                     <h4 class="text-[10px] font-bold text-primary mb-2 uppercase">1. Territoires</h4>
