@@ -1,0 +1,405 @@
+{% set active_page = "missions" %}
+{% extends "base.html" %}
+
+{% block topbar %}
+<header class="bg-white border-b border-gray-200 hidden md:flex flex-col md:flex-row md:justify-between md:items-center gap-4 px-6 h-16 w-full sticky top-0 z-20">
+    <div class="flex flex-col">
+        <h1 class="text-lg font-bold text-text-main leading-tight flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">directions_run</span> Centre des opérations terrain
+        </h1>
+        <p class="text-[11px] text-text-muted font-medium">Coordination intelligente des interventions GeoGuard</p>
+    </div>
+    
+    <div class="flex items-center gap-3">
+        <button class="bg-primary hover:bg-sidebar text-white rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">add_circle</span> Créer mission
+        </button>
+        <button class="bg-white hover:bg-gray-50 text-text-main border border-gray-200 rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">group_add</span> Affecter équipe
+        </button>
+        <button class="bg-white hover:bg-gray-50 text-text-main border border-gray-200 rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">map</span> Plein écran (Carte)
+        </button>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+
+<div class="p-6 w-full mx-auto space-y-6 flex flex-col h-[calc(100vh-64px)] overflow-hidden bg-slate-50 relative">
+
+    <!-- KPI OPÉRATIONNELS (EXACTEMENT 6 CARTES) -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 shrink-0">
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Missions actives</h3>
+            <div class="text-3xl font-black text-text-main leading-none">24</div>
+        </div>
+        <div class="bg-error/5 border border-error/30 rounded-xl p-4 shadow-sm relative overflow-hidden group cursor-pointer">
+            <div class="absolute right-0 top-0 w-10 h-10 bg-error/10 rounded-bl-full group-hover:scale-110 transition-transform"></div>
+            <h3 class="text-[10px] font-bold text-error uppercase tracking-wider mb-2">Missions urgentes</h3>
+            <div class="text-3xl font-black text-error leading-none animate-pulse">6</div>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Agents disponibles</h3>
+            <div class="text-3xl font-black text-info leading-none flex items-center gap-1">
+                48 <span class="text-xs text-text-muted">/ 60</span>
+            </div>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Temps d'intervention</h3>
+            <div class="text-2xl font-black text-text-main leading-tight mt-1">36 <span class="text-sm">heures</span></div>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Missions terminées</h3>
+            <div class="text-3xl font-black text-primary leading-none">320</div>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Validation Terrain</h3>
+            <div class="text-3xl font-black text-[#16A34A] leading-none">91 %</div>
+        </div>
+    </div>
+
+    <!-- MAIN TACTICAL SPLIT SCREEN -->
+    <div class="flex flex-col lg:flex-row gap-6 flex-1 min-h-0">
+        
+        <!-- GAUCHE : TABLEAU DES MISSIONS (60%) -->
+        <div class="w-full lg:w-[60%] bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden flex flex-col">
+            <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-4">
+                    <h2 class="text-sm font-bold text-text-main uppercase tracking-wider flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">format_list_bulleted</span> Liste des Opérations
+                    </h2>
+                    <div class="bg-white border border-gray-200 rounded-full px-3 py-1 flex items-center gap-2 text-[10px]">
+                        <span class="flex items-center gap-1 text-text-muted font-bold"><span class="w-2 h-2 rounded-full bg-error"></span> Urgente</span>
+                        <span class="flex items-center gap-1 text-text-muted font-bold"><span class="w-2 h-2 rounded-full bg-[#F59E0B]"></span> Haute</span>
+                    </div>
+                </div>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-2 top-1.5 text-text-muted text-[16px]">search</span>
+                    <input type="text" placeholder="Filtrer missions..." class="pl-8 pr-2 py-1 bg-white border border-gray-200 rounded-lg text-xs w-48 focus:outline-none focus:border-primary">
+                </div>
+            </div>
+            
+            <div class="overflow-y-auto flex-1 custom-scrollbar">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-white text-[10px] text-text-muted uppercase tracking-wider border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+                            <th class="p-3 font-bold">ID / Date</th>
+                            <th class="p-3 font-bold">Type & Zone</th>
+                            <th class="p-3 font-bold">Priorité</th>
+                            <th class="p-3 font-bold">Responsable</th>
+                            <th class="p-3 font-bold">Statut</th>
+                            <th class="p-3 font-bold text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm text-text-main divide-y divide-gray-100">
+                        
+                        <!-- Mission 1 : En déplacement (Urgente) -->
+                        <tr class="hover:bg-gray-50 transition-colors cursor-pointer group" onclick="openMissionSlideover()">
+                            <td class="p-3">
+                                <div class="font-bold font-mono text-xs">MIS-2026-0045</div>
+                                <div class="text-[10px] text-text-muted mt-0.5">Auj, 08:30</div>
+                            </td>
+                            <td class="p-3">
+                                <div class="font-bold text-text-main">Déforestation</div>
+                                <div class="text-[10px] text-text-muted flex items-center gap-1 mt-0.5">
+                                    <span class="material-symbols-outlined text-[12px]">location_on</span> Forêt classée du Banco
+                                </div>
+                            </td>
+                            <td class="p-3">
+                                <span class="bg-error/10 text-error px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border border-error/20">Critique</span>
+                            </td>
+                            <td class="p-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[10px] font-bold">K.R</div>
+                                    <div>
+                                        <div class="text-xs font-bold">Koffi R.</div>
+                                        <div class="text-[9px] text-info font-bold flex items-center gap-0.5"><span class="material-symbols-outlined text-[10px]">directions_car</span> En route (12km)</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-3">
+                                <span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-[9px] font-bold uppercase tracking-wider flex items-center w-max gap-1">
+                                    <span class="w-1.5 h-1.5 bg-blue-600 rounded-full animate-ping"></span> En déplacement
+                                </span>
+                            </td>
+                            <td class="p-3 text-right">
+                                <button class="bg-gray-100 group-hover:bg-primary group-hover:text-white text-text-main px-3 py-1.5 rounded text-[10px] font-bold transition-colors">Détail</button>
+                            </td>
+                        </tr>
+
+                        <!-- Mission 2 : Sur Site (Haute) -->
+                        <tr class="hover:bg-gray-50 transition-colors cursor-pointer group" onclick="openMissionSlideover()">
+                            <td class="p-3">
+                                <div class="font-bold font-mono text-xs">MIS-2026-0044</div>
+                                <div class="text-[10px] text-text-muted mt-0.5">Auj, 07:15</div>
+                            </td>
+                            <td class="p-3">
+                                <div class="font-bold text-text-main">Feu de forêt</div>
+                                <div class="text-[10px] text-text-muted flex items-center gap-1 mt-0.5">
+                                    <span class="material-symbols-outlined text-[12px]">location_on</span> Taï (Secteur Ouest)
+                                </div>
+                            </td>
+                            <td class="p-3">
+                                <span class="bg-[#EA580C]/10 text-[#EA580C] px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border border-[#EA580C]/20">Haute</span>
+                            </td>
+                            <td class="p-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[10px] font-bold">S.T</div>
+                                    <div>
+                                        <div class="text-xs font-bold">Sylla T.</div>
+                                        <div class="text-[9px] text-[#F59E0B] font-bold flex items-center gap-0.5"><span class="material-symbols-outlined text-[10px]">wifi_off</span> Hors Ligne (Forêt)</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-3">
+                                <span class="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-[9px] font-bold uppercase tracking-wider flex items-center w-max gap-1">
+                                    <span class="material-symbols-outlined text-[10px]">my_location</span> Sur Site
+                                </span>
+                            </td>
+                            <td class="p-3 text-right">
+                                <button class="bg-gray-100 group-hover:bg-primary group-hover:text-white text-text-main px-3 py-1.5 rounded text-[10px] font-bold transition-colors">Détail</button>
+                            </td>
+                        </tr>
+
+                        <!-- Mission 3 : En attente d'affectation -->
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="p-3">
+                                <div class="font-bold font-mono text-xs text-text-muted">MIS-2026-0046</div>
+                                <div class="text-[10px] text-text-muted mt-0.5">Auj, 09:10</div>
+                            </td>
+                            <td class="p-3">
+                                <div class="font-bold text-text-main">Construction illégale</div>
+                                <div class="text-[10px] text-text-muted flex items-center gap-1 mt-0.5">
+                                    <span class="material-symbols-outlined text-[12px]">location_on</span> Périphérie Bingerville
+                                </div>
+                            </td>
+                            <td class="p-3">
+                                <span class="bg-[#F59E0B]/10 text-[#F59E0B] px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border border-[#F59E0B]/20">Moyenne</span>
+                            </td>
+                            <td class="p-3">
+                                <button class="border border-dashed border-primary text-primary hover:bg-primary/5 px-2 py-1 rounded text-[9px] font-bold transition-colors w-full">Affecter Agent</button>
+                            </td>
+                            <td class="p-3">
+                                <span class="px-2 py-0.5 bg-gray-100 text-text-muted rounded text-[9px] font-bold uppercase tracking-wider">Créée</span>
+                            </td>
+                            <td class="p-3 text-right">
+                                <button class="bg-gray-100 text-text-main px-3 py-1.5 rounded text-[10px] font-bold transition-colors">Détail</button>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- DROITE : CARTE TACTIQUE (40%) -->
+        <div class="w-full lg:w-[40%] bg-white border border-gray-200 rounded-2xl shadow-sm relative overflow-hidden flex flex-col">
+            <div class="absolute top-4 left-4 z-10 bg-white/95 backdrop-blur border border-gray-200 px-3 py-2 rounded-lg shadow-sm flex items-center gap-3">
+                <span class="material-symbols-outlined text-text-main text-[18px]">satellite</span>
+                <div>
+                    <h2 class="text-xs font-bold text-text-main">Live Tracking</h2>
+                    <p class="text-[9px] text-text-muted">Positions des équipes</p>
+                </div>
+            </div>
+            
+            <div id="tactical-map" class="w-full h-full bg-slate-900"></div>
+
+            <div class="absolute bottom-4 right-4 z-10 flex flex-col gap-2">
+                <div class="bg-white/95 backdrop-blur p-2 rounded-lg border border-gray-200 shadow-sm flex flex-col gap-1 text-[10px] font-bold text-text-main w-32">
+                    <div class="flex items-center justify-between"><div class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-info"></span> Agents</div> <span class="text-text-muted">12</span></div>
+                    <div class="flex items-center justify-between"><div class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-error"></span> Alerte IA</div> <span class="text-text-muted">6</span></div>
+                </div>
+                <button class="bg-white border border-gray-200 p-2 rounded-lg shadow-sm flex items-center justify-center text-text-main hover:bg-gray-50" title="Centrer sur mes équipes">
+                    <span class="material-symbols-outlined text-[18px]">my_location</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- SLIDE-OVER : DÉTAIL DE MISSION & PREUVES -->
+<!-- ========================================== -->
+<!-- Backdrop -->
+<div id="mission-slideover-backdrop" class="fixed inset-0 bg-black/40 z-[90] hidden transition-opacity opacity-0 backdrop-blur-sm" onclick="closeMissionSlideover()"></div>
+
+<!-- Drawer -->
+<div id="mission-slideover" class="fixed top-0 right-0 h-screen w-full md:w-[600px] bg-slate-50 shadow-2xl z-[100] transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col border-l border-gray-200">
+    
+    <!-- Header Drawer -->
+    <div class="bg-white border-b border-gray-200 p-4 flex justify-between items-start shrink-0">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="bg-error/10 text-error px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border border-error/20">Critique</span>
+                <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 bg-blue-600 rounded-full animate-ping"></span> En déplacement
+                </span>
+            </div>
+            <h2 class="text-lg font-bold text-text-main">Inspection Coupe Forestière</h2>
+            <p class="text-xs text-text-muted font-mono">MIS-2026-0045 • Forêt du Banco (Nord-Est)</p>
+        </div>
+        <button onclick="closeMissionSlideover()" class="text-text-muted hover:text-text-main w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100"><span class="material-symbols-outlined">close</span></button>
+    </div>
+
+    <!-- Scrollable Content -->
+    <div class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+        
+        <!-- Team Tracking -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="relative">
+                    <img src="https://ui-avatars.com/api/?name=Koffi+R&background=0D8ABC&color=fff" class="w-12 h-12 rounded-full border-2 border-white shadow-sm">
+                    <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-text-main">Equipe Alpha - Koffi R.</h3>
+                    <p class="text-[10px] text-text-muted font-bold flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">directions_car</span> Trajet en cours (12 km restants)</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button class="w-8 h-8 rounded bg-gray-100 text-text-main flex items-center justify-center hover:bg-gray-200"><span class="material-symbols-outlined text-[16px]">call</span></button>
+                <button class="w-8 h-8 rounded bg-primary/10 text-primary flex items-center justify-center hover:bg-primary/20"><span class="material-symbols-outlined text-[16px]">chat</span></button>
+            </div>
+        </div>
+
+        <!-- Boucle IA vs Terrain -->
+        <div class="bg-sidebar rounded-xl p-5 shadow-sm text-white relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-bl-full pointer-events-none"></div>
+            <h3 class="text-xs font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
+                <span class="material-symbols-outlined">compare_arrows</span> Analyse Croisée : IA vs Terrain
+            </h3>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-black/30 p-3 rounded-lg border border-white/10">
+                    <span class="text-[9px] text-white/50 font-bold uppercase block mb-1">Hypothèse IA GeoGuard</span>
+                    <p class="text-xs font-bold text-error mb-2">Déforestation Probable (12.5 ha)</p>
+                    <span class="bg-white/10 px-2 py-0.5 rounded text-[9px] font-bold">Confiance IA : 94%</span>
+                </div>
+                
+                <div class="bg-primary/20 p-3 rounded-lg border border-primary/30 flex flex-col justify-center items-center text-center">
+                    <span class="text-[9px] text-primary/70 font-bold uppercase block mb-1">Observation Agent</span>
+                    <span class="material-symbols-outlined text-[24px] text-primary/50 mb-1">pending_actions</span>
+                    <p class="text-[10px] text-white/70">En attente d'arrivée sur site...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checklist Mobile -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xs font-bold text-text-main uppercase tracking-wider flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[16px]">checklist</span> Checklist Agent (Mobile)
+                </h3>
+                <span class="text-[10px] font-bold text-text-muted">3 / 5 Complétés</span>
+            </div>
+            
+            <div class="space-y-2 text-xs font-medium text-text-main">
+                <label class="flex items-center gap-3 p-2 rounded hover:bg-gray-50"><input type="checkbox" checked disabled class="text-primary rounded"> <span>Mission reçue sur mobile</span></label>
+                <label class="flex items-center gap-3 p-2 rounded hover:bg-gray-50"><input type="checkbox" checked disabled class="text-primary rounded"> <span>Cartes téléchargées (Mode Hors-Ligne)</span></label>
+                <label class="flex items-center gap-3 p-2 rounded hover:bg-gray-50"><input type="checkbox" checked disabled class="text-primary rounded"> <span>Arrivée sur site</span></label>
+                <label class="flex items-center gap-3 p-2 rounded hover:bg-gray-50 text-text-muted"><input type="checkbox" disabled class="rounded"> <span>Prise de photos géolocalisées</span></label>
+                <label class="flex items-center gap-3 p-2 rounded hover:bg-gray-50 text-text-muted"><input type="checkbox" disabled class="rounded"> <span>Validation du formulaire IA</span></label>
+            </div>
+        </div>
+
+        <!-- Galerie de Preuves (Vide) -->
+        <div class="bg-gray-50 border border-gray-200 border-dashed rounded-xl p-8 flex flex-col items-center justify-center text-center">
+            <div class="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-300 mb-3">
+                <span class="material-symbols-outlined text-[24px]">add_a_photo</span>
+            </div>
+            <h3 class="text-sm font-bold text-text-main">En attente des preuves terrain</h3>
+            <p class="text-[10px] text-text-muted mt-1 max-w-[250px]">Dès que l'équipe aura synchronisé son application mobile, les photos géolocalisées apparaîtront ici.</p>
+        </div>
+
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="bg-white border-t border-gray-200 p-4 shrink-0 flex gap-3">
+        <button class="bg-gray-100 hover:bg-gray-200 text-text-main px-4 py-2 rounded-lg text-xs font-bold transition-colors">Modifier Mission</button>
+        <button class="flex-1 bg-error/50 cursor-not-allowed text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined text-[16px]">lock</span> Clôturer Mission (En attente terrain)
+        </button>
+    </div>
+</div>
+
+<script>
+    function openMissionSlideover() {
+        const slideover = document.getElementById('mission-slideover');
+        const backdrop = document.getElementById('mission-slideover-backdrop');
+        
+        backdrop.classList.remove('hidden');
+        // setTimeout for transition
+        setTimeout(() => {
+            backdrop.classList.remove('opacity-0');
+            slideover.classList.remove('translate-x-full');
+        }, 10);
+    }
+
+    function closeMissionSlideover() {
+        const slideover = document.getElementById('mission-slideover');
+        const backdrop = document.getElementById('mission-slideover-backdrop');
+        
+        slideover.classList.add('translate-x-full');
+        backdrop.classList.add('opacity-0');
+        
+        setTimeout(() => {
+            backdrop.classList.add('hidden');
+        }, 300);
+    }
+
+    // -------------------------------------------------------------
+    // MAPBOX GL JS INIT (Carte Tactique GPS)
+    // -------------------------------------------------------------
+    mapboxgl.accessToken = 'VOTRE_TOKEN_MAPBOX'; // Demo Token
+    const map = new mapboxgl.Map({
+        container: 'tactical-map',
+        style: 'mapbox://styles/mapbox/dark-v11', // Fond sombre tactique
+        center: [-4.0244, 5.3453], // Côte d'Ivoire
+        zoom: 9,
+        attributionControl: false
+    });
+
+    map.on('load', () => {
+        // Ajouter un marqueur Agent (Bleu)
+        const elAgent = document.createElement('div');
+        elAgent.className = 'w-4 h-4 bg-info rounded-full border-2 border-white shadow-[0_0_10px_rgba(37,99,235,0.8)] animate-pulse';
+        new mapboxgl.Marker(elAgent).setLngLat([-4.05, 5.30]).addTo(map);
+
+        // Ajouter un marqueur Alerte IA (Rouge)
+        const elAlerte = document.createElement('div');
+        elAlerte.innerHTML = '<span class="material-symbols-outlined text-error" style="font-size: 24px; text-shadow: 0 0 5px rgba(220,38,38,0.8);">warning</span>';
+        new mapboxgl.Marker(elAlerte).setLngLat([-4.08, 5.38]).addTo(map);
+
+        // Ligne de trajet (Route)
+        map.addSource('route', {
+            'type': 'geojson',
+            'data': {
+                'type': 'Feature',
+                'properties': {},
+                'geometry': {
+                    'type': 'LineString',
+                    'coordinates': [
+                        [-4.05, 5.30],
+                        [-4.06, 5.34],
+                        [-4.08, 5.38]
+                    ]
+                }
+            }
+        });
+        map.addLayer({
+            'id': 'route',
+            'type': 'line',
+            'source': 'route',
+            'layout': { 'line-join': 'round', 'line-cap': 'round' },
+            'paint': {
+                'line-color': '#2563EB',
+                'line-width': 3,
+                'line-dasharray': [2, 2] // Itinéraire pointillé
+            }
+        });
+    });
+</script>
+{% endblock %}

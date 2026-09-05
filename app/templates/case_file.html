@@ -1,0 +1,198 @@
+{% set active_page = "alertes" %}
+{% extends "base.html" %}
+
+{% block topbar %}
+<header class="bg-white border-b border-gray-200 hidden md:flex flex-col md:flex-row md:justify-between md:items-center gap-4 px-6 h-16 w-full sticky top-0 z-20">
+    <div class="flex items-center gap-3">
+        <a href="/alertes" class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-text-muted transition-colors">
+            <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+        </a>
+        <div class="flex flex-col">
+            <div class="flex items-center gap-2">
+                <span class="bg-error text-white text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded">Critique</span>
+                <h1 class="text-lg font-bold text-text-main leading-tight">Dossier GG-2026-0458</h1>
+            </div>
+            <p class="text-[11px] text-text-muted">Déforestation rapide - Parc National du Banco</p>
+        </div>
+    </div>
+    
+    <!-- Action Bar Contextuelle -->
+    <div class="flex items-center gap-2 bg-gray-50 p-1 rounded-xl border border-gray-200">
+        <button class="hover:bg-white text-text-main px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 shadow-sm border border-transparent hover:border-gray-200">
+            <span class="material-symbols-outlined text-[#16A34A] text-[16px]">check_circle</span> Valider
+        </button>
+        <div class="w-px h-4 bg-gray-300"></div>
+        <button class="hover:bg-white text-text-main px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 shadow-sm border border-transparent hover:border-gray-200">
+            <span class="material-symbols-outlined text-info text-[16px]">analytics</span> Analyser
+        </button>
+        <div class="w-px h-4 bg-gray-300"></div>
+        <button class="bg-white text-error border border-error/30 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 shadow-sm hover:bg-error hover:text-white group">
+            <span class="material-symbols-outlined text-error text-[16px] group-hover:text-white">directions_run</span> Mission
+        </button>
+        <div class="w-px h-4 bg-gray-300"></div>
+        <button class="hover:bg-white text-text-main px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 shadow-sm border border-transparent hover:border-gray-200">
+            <span class="material-symbols-outlined text-text-muted text-[16px]">description</span> Rapport
+        </button>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-col h-[calc(100vh-64px)] w-full overflow-hidden bg-slate-50">
+
+    <!-- Progressive Disclosure Tabs -->
+    <div class="w-full bg-white border-b border-gray-200 px-6 pt-3 flex gap-6 shrink-0 z-10">
+        <button class="pb-3 border-b-2 border-primary text-primary font-bold text-sm transition-colors" onclick="switchTab('tab-resume', this)">
+            1. Résumé <span class="text-[10px] font-normal text-text-muted ml-1">(Décision)</span>
+        </button>
+        <button class="pb-3 border-b-2 border-transparent text-text-muted hover:text-text-main font-bold text-sm transition-colors" onclick="switchTab('tab-carte', this)">
+            2. Carte <span class="text-[10px] font-normal text-text-muted ml-1">(Localisation)</span>
+        </button>
+        <button class="pb-3 border-b-2 border-transparent text-text-muted hover:text-text-main font-bold text-sm transition-colors" onclick="switchTab('tab-analyse', this)">
+            3. Analyse IA <span class="text-[10px] font-normal text-text-muted ml-1">(Expert)</span>
+        </button>
+        <button class="pb-3 border-b-2 border-transparent text-text-muted hover:text-text-main font-bold text-sm transition-colors" onclick="switchTab('tab-historique', this)">
+            4. Audit <span class="text-[10px] font-normal text-text-muted ml-1">(Logs)</span>
+        </button>
+    </div>
+
+    <!-- Tab Contents -->
+    <div class="flex-1 overflow-y-auto p-6 relative">
+        
+        <!-- LEVEL 1 : RÉSUMÉ -->
+        <div id="tab-resume" class="tab-content max-w-4xl mx-auto space-y-6">
+            <!-- GeoGuard AI Summary -->
+            <div class="bg-white border border-[#f59e0b]/30 rounded-xl p-5 shadow-sm relative overflow-hidden flex gap-4">
+                <div class="absolute top-0 left-0 w-1 h-full bg-[#f59e0b]"></div>
+                <div class="w-12 h-12 rounded-full bg-[#f59e0b]/10 text-[#f59e0b] flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-[24px]">psychology</span>
+                </div>
+                <div>
+                    <h2 class="text-xs font-bold text-text-main uppercase tracking-wider mb-2">Synthèse de la situation</h2>
+                    <p class="text-sm text-text-main leading-relaxed mb-4">
+                        L'IA a détecté une perte brutale de couverture végétale estimée à <strong>12 hectares</strong> au cours des 48 dernières heures dans le secteur Nord-Est du Parc National du Banco. La signature spectrale correspond à des coupes nettes, suggérant une activité humaine illégale (bûcheronnage).
+                    </p>
+                    <div class="flex gap-2">
+                        <span class="bg-gray-100 text-text-main px-2 py-1 rounded text-[10px] font-bold">Confiance: 96%</span>
+                        <span class="bg-gray-100 text-text-main px-2 py-1 rounded text-[10px] font-bold">Source: Sentinel-2 + SAR</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions block -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-sidebar border border-sidebar rounded-xl p-5 shadow-sm">
+                    <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">priority</span> Actions Recommandées
+                    </h3>
+                    <div class="space-y-3">
+                        <button class="w-full bg-error hover:bg-error/90 text-white py-2 rounded text-xs font-bold transition-colors flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-[16px]">directions_run</span> Créer Mission Terrain (Alpha)
+                        </button>
+                        <button class="w-full bg-white/10 hover:bg-white/20 text-white py-2 rounded text-xs font-bold transition-colors flex items-center justify-center gap-2 border border-white/20">
+                            Demander Imagerie Drone
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex items-center justify-center">
+                    <img src="/data/processed/anomaly_map.png" class="w-full h-full object-cover rounded-lg opacity-80" alt="Aperçu">
+                </div>
+            </div>
+        </div>
+
+        <!-- LEVEL 2 : CARTE (Hidden) -->
+        <div id="tab-carte" class="tab-content hidden h-full">
+            <div class="w-full h-full bg-slate-900 rounded-xl border border-gray-200 overflow-hidden relative shadow-sm">
+                <!-- Fallback image -->
+                <img src="/data/processed/anomaly_map.png" class="absolute inset-0 w-full h-full object-cover opacity-50 mix-blend-screen filter grayscale" />
+                <div class="absolute top-[30%] left-[40%] w-48 h-48 bg-error/40 rounded-full blur-xl animate-pulse pointer-events-none"></div>
+                <!-- Mini map controls -->
+                <div class="absolute top-4 left-4 bg-white/95 backdrop-blur p-2 rounded-lg border border-gray-200 shadow-sm space-y-1">
+                    <label class="flex items-center text-xs font-bold text-text-main"><input type="checkbox" checked class="mr-2">Avant (T-0)</label>
+                    <label class="flex items-center text-xs font-bold text-error"><input type="checkbox" checked class="mr-2">Après (T-1)</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- LEVEL 3 : ANALYSE (Hidden) -->
+        <div id="tab-analyse" class="tab-content hidden max-w-5xl mx-auto space-y-6">
+            <h2 class="text-sm font-bold text-text-main mb-4">Données Scientifiques (Vue Expert)</h2>
+            <div class="grid grid-cols-3 gap-4">
+                <div class="bg-white p-4 border border-gray-200 rounded-xl shadow-sm">
+                    <span class="text-[10px] text-text-muted font-bold uppercase block mb-1">Delta NDVI</span>
+                    <span class="text-2xl font-black text-error">-0.42</span>
+                </div>
+                <div class="bg-white p-4 border border-gray-200 rounded-xl shadow-sm">
+                    <span class="text-[10px] text-text-muted font-bold uppercase block mb-1">Pixels Anormaux</span>
+                    <span class="text-2xl font-black text-text-main">12,450 px</span>
+                </div>
+                <div class="bg-white p-4 border border-gray-200 rounded-xl shadow-sm">
+                    <span class="text-[10px] text-text-muted font-bold uppercase block mb-1">Modèle ML</span>
+                    <span class="text-2xl font-black text-info">RandomForest v3</span>
+                </div>
+            </div>
+            <!-- Raw JSON/Logs display simulation -->
+            <div class="bg-slate-900 rounded-xl p-4 text-green-400 font-mono text-[10px] overflow-auto h-64 border border-slate-700">
+                <pre>
+{
+    "analysis_id": "ANL-8849-2A",
+    "timestamp": "2026-09-04T10:14:22Z",
+    "model_confidence": 0.964,
+    "features_importance": {
+        "ndvi_drop": 0.55,
+        "sar_backscatter_change": 0.30,
+        "proximity_to_road": 0.15
+    },
+    "flags": ["RAPID_DEFORESTATION", "HIGH_PROBABILITY_HUMAN_ACTIVITY"]
+}
+                </pre>
+            </div>
+        </div>
+
+        <!-- LEVEL 4 : HISTORIQUE (Hidden) -->
+        <div id="tab-historique" class="tab-content hidden max-w-3xl mx-auto">
+            <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                <h2 class="text-sm font-bold text-text-main mb-6">Journal d'Audit</h2>
+                <div class="relative border-l-2 border-gray-100 ml-3 space-y-6">
+                    <div class="relative pl-6">
+                        <span class="absolute -left-2 top-0.5 w-3.5 h-3.5 rounded-full bg-gray-200 border-2 border-white"></span>
+                        <p class="text-xs font-bold text-text-main">Détection Initiale (IA Vision)</p>
+                        <p class="text-[10px] text-text-muted">Aujourd'hui, 08:12</p>
+                    </div>
+                    <div class="relative pl-6">
+                        <span class="absolute -left-2 top-0.5 w-3.5 h-3.5 rounded-full bg-primary border-2 border-white"></span>
+                        <p class="text-xs font-bold text-text-main">Validation automatique (IA Orchestrateur)</p>
+                        <p class="text-[10px] text-text-muted">Aujourd'hui, 08:15</p>
+                    </div>
+                    <div class="relative pl-6">
+                        <span class="absolute -left-2 top-0.5 w-3.5 h-3.5 rounded-full bg-error border-2 border-white animate-pulse"></span>
+                        <p class="text-xs font-bold text-error">En attente de décision humaine</p>
+                        <p class="text-[10px] text-text-muted">Actuellement</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function switchTab(tabId, btnElement) {
+        // Hide all contents
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        // Show target
+        document.getElementById(tabId).classList.remove('hidden');
+        
+        // Reset all buttons
+        const buttons = btnElement.parentElement.querySelectorAll('button');
+        buttons.forEach(btn => {
+            btn.classList.remove('border-primary', 'text-primary');
+            btn.classList.add('border-transparent', 'text-text-muted');
+        });
+        
+        // Activate current button
+        btnElement.classList.remove('border-transparent', 'text-text-muted');
+        btnElement.classList.add('border-primary', 'text-primary');
+    }
+</script>
+{% endblock %}

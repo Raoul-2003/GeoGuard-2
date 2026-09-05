@@ -1,0 +1,400 @@
+{% set active_page = "dashboard" %}
+{% extends "base.html" %}
+
+{% block topbar %}
+<!-- COMMAND CENTER HEADER (70px height as requested) -->
+<header class="bg-white border-b border-gray-200 px-6 h-[70px] flex items-center justify-between sticky top-0 z-20 shrink-0 transition-colors duration-300" id="command-header">
+    <div class="flex flex-col justify-center h-full">
+        <h1 class="text-xl font-bold text-text-main leading-tight tracking-tight flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary" id="header-icon">shield</span> GeoGuard Command Center
+        </h1>
+        <p class="text-[11px] text-text-muted font-medium">Supervision intelligente du territoire en temps réel</p>
+    </div>
+    
+    <div class="flex items-center gap-6">
+        <div class="hidden md:flex flex-col items-end border-r border-gray-200 pr-6">
+            <span class="text-[10px] text-text-muted uppercase font-bold tracking-wider mb-1">Dernière synchronisation</span>
+            <span class="text-xs font-mono font-bold text-text-main">04/09/2026 - 13:20</span>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <div class="w-2.5 h-2.5 rounded-full bg-[#16A34A] animate-pulse" id="status-dot"></div>
+            <span class="text-xs font-bold text-text-main uppercase" id="status-text">Opérationnel</span>
+        </div>
+        
+        <div class="flex items-center gap-3 pl-4 border-l border-gray-200">
+            <div class="text-right">
+                <span class="block text-xs font-bold text-text-main">Directeur</span>
+                <span class="block text-[10px] text-text-muted">Profil Stratégique</span>
+            </div>
+            <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                <span class="material-symbols-outlined text-[16px]">person</span>
+            </div>
+        </div>
+        
+        <button onclick="toggleCrisisMode()" id="btn-crisis" class="ml-2 bg-white border border-error text-error hover:bg-error hover:text-white rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">emergency</span> Mode Crise
+        </button>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<!-- Include MapLibre GL JS -->
+<link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+<script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="p-6 w-full mx-auto space-y-6 flex flex-col h-[calc(100vh-70px)] overflow-y-auto custom-scrollbar bg-slate-50 transition-colors duration-300" id="main-container">
+
+    <!-- LIGNE 1 : KPI STRATÉGIQUES (EXACTEMENT 6 CARTES) -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 shrink-0">
+        <!-- KPI 1 : Risque -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm crisis-border transition-colors">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Niveau de risque</h3>
+            <div class="flex items-end gap-1">
+                <span class="text-3xl font-black text-[#EA580C] leading-none" id="kpi-risk-val">72</span>
+                <span class="text-xs text-text-muted font-medium mb-1">/ 100</span>
+            </div>
+            <span class="text-[10px] font-bold text-[#EA580C] mt-1 block" id="kpi-risk-label">Risque modéré</span>
+        </div>
+        <!-- KPI 2 : Alertes -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm crisis-border transition-colors">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Alertes Critiques</h3>
+            <div class="text-3xl font-black text-error leading-none mb-1">18</div>
+            <button class="text-[10px] font-bold text-primary hover:underline">Voir urgences &rarr;</button>
+        </div>
+        <!-- KPI 3 : Surface -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm crisis-border transition-colors">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Surface affectée</h3>
+            <div class="text-2xl font-black text-text-main leading-tight mb-1">1 250 ha</div>
+            <span class="text-[10px] font-bold text-error flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">trending_up</span> +4 %</span>
+        </div>
+        <!-- KPI 4 : Missions -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm crisis-border transition-colors">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Missions Terrain</h3>
+            <div class="text-3xl font-black text-info leading-none mb-1">24</div>
+            <span class="text-[10px] font-medium text-text-muted block">12 en cours</span>
+        </div>
+        <!-- KPI 5 : Zones -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm crisis-border transition-colors">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Sous surveillance</h3>
+            <div class="text-3xl font-black text-text-main leading-none mb-1">845</div>
+        </div>
+        <!-- KPI 6 : IA -->
+        <div class="bg-primary/5 border border-primary/20 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-primary uppercase tracking-wider mb-2">Performance IA</h3>
+            <div class="text-3xl font-black text-primary leading-none mb-1">94 %</div>
+        </div>
+    </div>
+
+    <!-- LIGNE 2 : CARTE (60%) & PANNEAU LATÉRAL (40%) -->
+    <div class="flex flex-col lg:flex-row gap-6 shrink-0 min-h-[500px]">
+        
+        <!-- 60% MAP : Risk Overview -->
+        <div class="w-full lg:w-[60%] bg-white border border-gray-200 rounded-2xl shadow-sm relative overflow-hidden crisis-border transition-colors flex flex-col">
+            <div class="absolute top-4 left-4 z-10 bg-white/95 backdrop-blur border border-gray-200 px-3 py-2 rounded-lg shadow-sm flex items-center gap-3">
+                <span class="material-symbols-outlined text-text-main text-[18px]">map</span>
+                <div>
+                    <h2 class="text-xs font-bold text-text-main">Risk Overview</h2>
+                    <p class="text-[9px] text-text-muted">Vue nationale des menaces actives</p>
+                </div>
+            </div>
+            
+            <!-- Map Container -->
+            <div id="command-map" class="w-full h-full bg-slate-900 relative"></div>
+
+            <div class="absolute bottom-4 right-4 z-10 flex gap-2">
+                <button class="bg-white text-text-main px-3 py-1.5 rounded text-xs font-bold shadow-md hover:bg-gray-50 border border-gray-200 transition-colors">
+                    Comparer période
+                </button>
+                <button onclick="window.location.href='/digital-twin'" class="bg-sidebar text-white px-3 py-1.5 rounded text-xs font-bold shadow-md hover:bg-sidebar/90 transition-colors flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px]">public</span> Simuler le futur
+                </button>
+            </div>
+        </div>
+
+        <!-- 40% RIGHT PANEL : SITUATION, ALERTS, RECOMMENDATIONS -->
+        <div class="w-full lg:w-[40%] flex flex-col gap-4">
+            
+            <!-- GeoGuard Daily Brief -->
+            <div class="bg-sidebar border border-sidebar rounded-xl p-4 shadow-sm relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-primary/20 rounded-bl-full pointer-events-none"></div>
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="material-symbols-outlined text-primary">lightbulb</span>
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider">GeoGuard Daily Brief</h2>
+                </div>
+                <p class="text-xs text-white/90 leading-relaxed mb-3">
+                    "Les analyses des 30 derniers jours montrent une augmentation des changements de couverture végétale dans 3 régions forestières classées. 18 zones nécessitent une attention prioritaire immédiate."
+                </p>
+                <button class="text-[10px] font-bold text-primary hover:text-white transition-colors uppercase tracking-wide">
+                    Voir analyse complète &rarr;
+                </button>
+            </div>
+
+            <!-- Alertes Prioritaires (Max 5) -->
+            <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex-1 flex flex-col crisis-border transition-colors">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xs font-bold text-text-main uppercase tracking-wider">Alertes Prioritaires</h2>
+                    <a href="/alertes" class="text-[10px] font-bold text-primary hover:underline">Voir toutes</a>
+                </div>
+                
+                <div class="space-y-3 flex-1 overflow-y-auto custom-scrollbar pr-2">
+                    <!-- Alerte 1 -->
+                    <div class="flex items-start justify-between p-2.5 bg-error/5 border border-error/20 rounded-lg">
+                        <div class="flex items-start gap-2">
+                            <span class="w-2 h-2 rounded-full bg-error mt-1.5 animate-pulse shrink-0"></span>
+                            <div>
+                                <h4 class="text-xs font-bold text-error">Déforestation (Parc National X)</h4>
+                                <p class="text-[10px] text-text-muted mt-0.5">Risque 92% • 25 ha • Il y a 2h</p>
+                            </div>
+                        </div>
+                        <button class="text-[10px] bg-white border border-gray-200 px-2 py-1 rounded text-text-main hover:bg-gray-50 font-bold whitespace-nowrap">Créer mission</button>
+                    </div>
+                    <!-- Alerte 2 -->
+                    <div class="flex items-start justify-between p-2.5 bg-error/5 border border-error/20 rounded-lg">
+                        <div class="flex items-start gap-2">
+                            <span class="w-2 h-2 rounded-full bg-error mt-1.5 shrink-0"></span>
+                            <div>
+                                <h4 class="text-xs font-bold text-error">Incendie Actif (Zone Y)</h4>
+                                <p class="text-[10px] text-text-muted mt-0.5">Risque 88% • 14 ha • Il y a 4h</p>
+                            </div>
+                        </div>
+                        <button class="text-[10px] bg-white border border-gray-200 px-2 py-1 rounded text-text-main hover:bg-gray-50 font-bold whitespace-nowrap">Créer mission</button>
+                    </div>
+                    <!-- Alerte 3 -->
+                    <div class="flex items-start justify-between p-2.5 bg-[#EA580C]/5 border border-[#EA580C]/20 rounded-lg">
+                        <div class="flex items-start gap-2">
+                            <span class="w-2 h-2 rounded-full bg-[#EA580C] mt-1.5 shrink-0"></span>
+                            <div>
+                                <h4 class="text-xs font-bold text-[#EA580C]">Activité Humaine Illégale</h4>
+                                <p class="text-[10px] text-text-muted mt-0.5">Risque 75% • Proximité route • Hier</p>
+                            </div>
+                        </div>
+                        <button class="text-[10px] bg-white border border-gray-200 px-2 py-1 rounded text-text-main hover:bg-gray-50 font-bold whitespace-nowrap">Créer mission</button>
+                    </div>
+                    <!-- Alerte 4 & 5 (simulées) -->
+                    <div class="flex items-start justify-between p-2.5 border-b border-gray-100">
+                        <div class="flex items-start gap-2">
+                            <span class="w-2 h-2 rounded-full bg-[#F59E0B] mt-1.5 shrink-0"></span>
+                            <div><h4 class="text-xs font-bold text-text-main">Mouvement suspect</h4><p class="text-[10px] text-text-muted">Hier</p></div>
+                        </div>
+                    </div>
+                    <div class="flex items-start justify-between p-2.5">
+                        <div class="flex items-start gap-2">
+                            <span class="w-2 h-2 rounded-full bg-[#F59E0B] mt-1.5 shrink-0"></span>
+                            <div><h4 class="text-xs font-bold text-text-main">Urbanisation précoce</h4><p class="text-[10px] text-text-muted">Il y a 2 jours</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommandations AI (Max 5) -->
+            <div class="bg-white border border-primary/30 rounded-xl p-4 shadow-sm relative crisis-border transition-colors">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[16px]">psychology</span> Recommandations AI
+                    </h2>
+                </div>
+                <div class="space-y-2">
+                    <div class="bg-gray-50 p-2.5 rounded-lg border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <span class="text-[9px] font-bold text-error uppercase block mb-0.5">Priorité 1</span>
+                            <p class="text-xs text-text-main font-medium">Envoyer équipe terrain dans la zone A (Urgence: 24h)</p>
+                        </div>
+                        <button class="material-symbols-outlined text-text-muted hover:text-primary text-[16px]">check_circle</button>
+                    </div>
+                    <div class="bg-gray-50 p-2.5 rounded-lg border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <span class="text-[9px] font-bold text-[#EA580C] uppercase block mb-0.5">Priorité 2</span>
+                            <p class="text-xs text-text-main font-medium">Augmenter fréquence satellite zone B</p>
+                        </div>
+                        <button class="material-symbols-outlined text-text-muted hover:text-primary text-[16px]">check_circle</button>
+                    </div>
+                    <div class="bg-gray-50 p-2.5 rounded-lg border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <span class="text-[9px] font-bold text-info uppercase block mb-0.5">Priorité 3</span>
+                            <p class="text-xs text-text-main font-medium">Créer rapport institutionnel hebdomadaire</p>
+                        </div>
+                        <button class="material-symbols-outlined text-text-muted hover:text-primary text-[16px]">check_circle</button>
+                    </div>
+                </div>
+                <!-- AI Liability -->
+                <div class="mt-3 pt-3 border-t border-gray-100 flex items-center gap-1 opacity-70">
+                    <span class="material-symbols-outlined text-[10px] text-text-muted">info</span>
+                    <p class="text-[8px] text-text-muted leading-tight">Source: Algorithmes prédictifs GeoGuard. Confiance globale: 94%. Validation humaine requise avant déploiement.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- LIGNE 3 : INDICATEURS DE TENDANCE (3 Graphiques) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 shrink-0 pb-6">
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm crisis-border transition-colors">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Évolution Risque Global (12 mois)</h3>
+            <div class="h-16 w-full relative"><canvas id="chart-risk"></canvas></div>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm crisis-border transition-colors">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Évolution Couverture Végétale</h3>
+            <div class="h-16 w-full relative"><canvas id="chart-veg"></canvas></div>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm crisis-border transition-colors">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Volume Alertes Critiques</h3>
+            <div class="h-16 w-full relative"><canvas id="chart-alerts"></canvas></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // -------------------------------------------------------------
+    // CRISIS MODE LOGIC
+    // -------------------------------------------------------------
+    let crisisActive = false;
+    function toggleCrisisMode() {
+        crisisActive = !crisisActive;
+        const btn = document.getElementById('btn-crisis');
+        const header = document.getElementById('command-header');
+        const statusDot = document.getElementById('status-dot');
+        const statusText = document.getElementById('status-text');
+        const icon = document.getElementById('header-icon');
+        
+        // Tous les conteneurs qui ont une bordure "crisis-border"
+        const crisisBorders = document.querySelectorAll('.crisis-border');
+
+        if (crisisActive) {
+            btn.innerHTML = `<span class="material-symbols-outlined text-[16px]">close</span> Sortir du Mode Crise`;
+            btn.className = "ml-2 bg-error text-white border border-error rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-lg animate-pulse";
+            
+            // Modifier le visuel de la page
+            header.classList.add('bg-error/10');
+            statusDot.classList.replace('bg-[#16A34A]', 'bg-error');
+            statusText.innerText = "CRITIQUE";
+            statusText.classList.add('text-error');
+            icon.classList.replace('text-primary', 'text-error');
+            icon.innerText = 'warning';
+
+            // Modifier les bordures
+            crisisBorders.forEach(el => {
+                el.classList.add('border-error');
+                el.classList.remove('border-gray-200', 'border-primary/30');
+            });
+
+            // Mettre à jour la carte (Heatmap forte)
+            if(map.getLayer('heatmap-layer')) {
+                map.setPaintProperty('heatmap-layer', 'heatmap-intensity', 1.5);
+            }
+
+        } else {
+            btn.innerHTML = `<span class="material-symbols-outlined text-[16px]">emergency</span> Mode Crise`;
+            btn.className = "ml-2 bg-white border border-error text-error hover:bg-error hover:text-white rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm";
+            
+            // Revert
+            header.classList.remove('bg-error/10');
+            statusDot.classList.replace('bg-error', 'bg-[#16A34A]');
+            statusText.innerText = "Opérationnel";
+            statusText.classList.remove('text-error');
+            icon.classList.replace('text-error', 'text-primary');
+            icon.innerText = 'shield';
+
+            crisisBorders.forEach(el => {
+                el.classList.remove('border-error');
+                if(!el.classList.contains('border-primary/30')) {
+                    el.classList.add('border-gray-200');
+                }
+            });
+
+            if(map.getLayer('heatmap-layer')) {
+                map.setPaintProperty('heatmap-layer', 'heatmap-intensity', 0.5);
+            }
+        }
+    }
+
+    // -------------------------------------------------------------
+    // MAPLIBRE GL JS INIT
+    // -------------------------------------------------------------
+    const map = new maplibregl.Map({
+        container: 'command-map',
+        style: {
+            'version': 8,
+            'sources': {
+                'osm': {
+                    'type': 'raster',
+                    'tiles': [
+                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+                    ],
+                    'tileSize': 256,
+                    'attribution': '&copy; OpenStreetMap contributors'
+                }
+            },
+            'layers': [{
+                'id': 'basemap-layer',
+                'type': 'raster',
+                'source': 'osm',
+                'minzoom': 0,
+                'maxzoom': 19
+            }]
+        },
+        center: [-4.0244, 5.3453], // Côte d'Ivoire
+        zoom: 6,
+        attributionControl: false
+    });
+
+    map.on('load', () => {
+        // Ajouter une source GeoJSON fictive pour la heatmap
+        map.addSource('risks', {
+            'type': 'geojson',
+            'data': {
+                'type': 'FeatureCollection',
+                'features': [
+                    { 'type': 'Feature', 'properties': { 'mag': 5 }, 'geometry': { 'type': 'Point', 'coordinates': [-4.05, 5.38] } },
+                    { 'type': 'Feature', 'properties': { 'mag': 3 }, 'geometry': { 'type': 'Point', 'coordinates': [-7.33, 5.86] } },
+                    { 'type': 'Feature', 'properties': { 'mag': 4 }, 'geometry': { 'type': 'Point', 'coordinates': [-5.23, 6.82] } }
+                ]
+            }
+        });
+
+        map.addLayer({
+            'id': 'heatmap-layer',
+            'type': 'heatmap',
+            'source': 'risks',
+            'paint': {
+                'heatmap-weight': ['interpolate', ['linear'], ['get', 'mag'], 0, 0, 5, 1],
+                'heatmap-intensity': 0.5,
+                'heatmap-color': ['interpolate', ['linear'], ['heatmap-density'], 0, 'rgba(33,102,172,0)', 0.2, 'rgb(103,169,207)', 0.4, 'rgb(209,229,240)', 0.6, 'rgb(253,219,199)', 0.8, 'rgb(239,138,98)', 1, 'rgb(220,38,38)'],
+                'heatmap-radius': 40
+            }
+        });
+    });
+
+    // -------------------------------------------------------------
+    // CHART.JS SPARKLINES
+    // -------------------------------------------------------------
+    const sparklineOptions = {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+        scales: { x: { display: false }, y: { display: false } },
+        elements: { point: { radius: 0 }, line: { borderWidth: 2, tension: 0.4 } }
+    };
+
+    new Chart(document.getElementById('chart-risk'), {
+        type: 'line',
+        data: { labels: [1,2,3,4,5,6,7,8,9,10,11,12], datasets: [{ data: [40, 42, 45, 50, 48, 55, 60, 62, 65, 70, 68, 72], borderColor: '#EA580C', fill: false }] },
+        options: sparklineOptions
+    });
+
+    new Chart(document.getElementById('chart-veg'), {
+        type: 'line',
+        data: { labels: [1,2,3,4,5,6,7,8,9,10,11,12], datasets: [{ data: [100, 99, 99, 98, 97, 95, 95, 93, 92, 90, 89, 87], borderColor: '#16A34A', fill: false }] },
+        options: sparklineOptions
+    });
+
+    new Chart(document.getElementById('chart-alerts'), {
+        type: 'bar',
+        data: { labels: [1,2,3,4,5,6,7,8,9,10,11,12], datasets: [{ data: [2, 3, 5, 4, 8, 12, 10, 15, 14, 18, 16, 18], backgroundColor: '#DC2626' }] },
+        options: { ...sparklineOptions, elements: {} } // reset line elements for bar chart
+    });
+</script>
+{% endblock %}

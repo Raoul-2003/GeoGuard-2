@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # Base de données Spatiale (PostgreSQL + PostGIS)
+  db:
+    image: postgis/postgis:15-3.3
+    container_name: geoguard-db
+    environment:
+      POSTGRES_USER: geoguard
+      POSTGRES_PASSWORD: geoguard_password
+      POSTGRES_DB: geoguard
+    ports:
+      - "5432:5432"
+    volumes:
+      - geoguard-db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # File d'attente (Task Queue)
+  redis:
+    image: redis:alpine
+    container_name: geoguard-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  # Backend (FastAPI)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: geoguard-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - DATABASE_URL=postgresql://geoguard:geoguard_password@db:5432/geoguard
+      - REDIS_URL=redis://redis:6379/0
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+    depends_on:
+      - db
+      - redis
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # AI Worker (Celery/RQ pour traitements asynchrones)
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: geoguard-worker
+    volumes:
+      - ./backend:/app
+    environment:
+      - DATABASE_URL=postgresql://geoguard:geoguard_password@db:5432/geoguard
+      - REDIS_URL=redis://redis:6379/0
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+    depends_on:
+      - db
+      - redis
+    command: celery -A app.core.celery_app worker --loglevel=info
+
+  # Frontend (React + Vite)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: geoguard-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    command: npm run dev -- --host 0.0.0.0 --port 3000
+
+volumes:
+  geoguard-db-data:

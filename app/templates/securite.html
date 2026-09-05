@@ -1,0 +1,351 @@
+{% set active_page = "admin" %}
+{% extends "base.html" %}
+
+{% block topbar %}
+<header class="bg-white border-b border-gray-200 hidden md:flex flex-col md:flex-row md:justify-between md:items-center gap-4 px-6 h-16 w-full sticky top-0 z-20">
+    <div class="flex flex-col">
+        <h1 class="text-lg font-bold text-text-main leading-tight flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">verified_user</span> Centre d'audit et conformité
+        </h1>
+        <p class="text-[11px] text-text-muted font-medium">Traçabilité complète des opérations GeoGuard</p>
+    </div>
+    
+    <div class="flex items-center gap-3">
+        <button class="bg-white hover:bg-gray-50 text-text-main border border-gray-200 rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">search</span> Rechercher événement
+        </button>
+        <button class="bg-white hover:bg-gray-50 text-text-main border border-gray-200 rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span> Créer rapport conformité
+        </button>
+        <button class="bg-primary hover:bg-sidebar text-white rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">download</span> Exporter audit
+        </button>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="p-6 w-full mx-auto space-y-6 flex flex-col h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar bg-slate-50 relative">
+
+    <!-- KPI AUDIT (EXACTEMENT 6 CARTES) -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 shrink-0">
+        <!-- KPI 1 -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Actions enregistrées</h3>
+            <div class="text-3xl font-black text-text-main leading-none">2.4<span class="text-lg">M</span></div>
+        </div>
+        <!-- KPI 2 -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Utilisateurs actifs</h3>
+            <div class="text-3xl font-black text-text-main leading-none">245</div>
+        </div>
+        <!-- KPI 3 -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Alertes auditées</h3>
+            <div class="text-3xl font-black text-info leading-none">98 %</div>
+        </div>
+        <!-- KPI 4 -->
+        <div class="bg-primary/5 border border-primary/20 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-primary uppercase tracking-wider mb-2">Décisions IA traçables</h3>
+            <div class="text-3xl font-black text-primary leading-none flex items-center gap-1">
+                <span class="material-symbols-outlined text-[20px]">security</span> 100 %
+            </div>
+        </div>
+        <!-- KPI 5 -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Incidents sécurité</h3>
+            <div class="text-3xl font-black text-[#16A34A] leading-none">0</div>
+        </div>
+        <!-- KPI 6 -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm relative overflow-hidden">
+            <div class="absolute right-0 top-0 w-10 h-10 bg-[#16A34A]/10 rounded-bl-full"></div>
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Score conformité</h3>
+            <div class="text-3xl font-black text-primary leading-none flex items-end gap-1">96<span class="text-xs text-text-muted mb-1">/100</span></div>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <div class="flex flex-col lg:flex-row gap-6 flex-1 min-h-0">
+        
+        <!-- GAUCHE : JOURNAL DES ACTIVITÉS (60%) -->
+        <div class="w-full lg:w-[60%] bg-white border border-gray-200 rounded-2xl shadow-sm flex flex-col overflow-hidden">
+            <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center shrink-0">
+                <h2 class="text-sm font-bold text-text-main uppercase tracking-wider flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">list_alt</span> Journal d'Audit (Audit Log)
+                </h2>
+                <button class="bg-white border border-gray-200 text-text-main px-3 py-1 rounded text-xs font-bold shadow-sm hover:bg-gray-50 transition-colors flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px]">filter_list</span> Filtrer
+                </button>
+            </div>
+            
+            <div class="overflow-y-auto custom-scrollbar flex-1">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-white text-[10px] text-text-muted uppercase tracking-wider border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+                            <th class="p-3 font-bold">Date & Heure</th>
+                            <th class="p-3 font-bold">Utilisateur / Agent</th>
+                            <th class="p-3 font-bold">Action & Objet</th>
+                            <th class="p-3 font-bold">Statut</th>
+                            <th class="p-3 font-bold text-right">Inspection</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-[11px] text-text-main divide-y divide-gray-100 font-mono">
+                        
+                        <!-- Event 1 -->
+                        <tr class="hover:bg-gray-50 transition-colors cursor-pointer group" onclick="openTraceabilitySlideover()">
+                            <td class="p-3 text-text-muted">04/09/2026<br>10:32:45 UTC</td>
+                            <td class="p-3">
+                                <div class="font-bold font-sans text-xs text-text-main flex items-center gap-1"><span class="material-symbols-outlined text-[14px] text-primary">verified_user</span> Jean Dupont</div>
+                                <div class="text-[9px] text-text-muted mt-0.5">Directeur Opérations</div>
+                            </td>
+                            <td class="p-3">
+                                <span class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded uppercase tracking-wider font-bold text-[9px] mr-1">Validation</span>
+                                Alerte GG-2458
+                                <div class="text-[9px] text-text-muted mt-1 truncate max-w-[200px]">Validation manuelle de la déforestation Banco.</div>
+                            </td>
+                            <td class="p-3"><span class="text-[#16A34A] font-bold flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">check_circle</span> Confirmé</span></td>
+                            <td class="p-3 text-right">
+                                <button class="bg-gray-100 group-hover:bg-sidebar group-hover:text-white font-sans text-text-main px-3 py-1 rounded text-[10px] font-bold transition-colors">Traçabilité</button>
+                            </td>
+                        </tr>
+
+                        <!-- Event 2 -->
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="p-3 text-text-muted">04/09/2026<br>10:15:22 UTC</td>
+                            <td class="p-3">
+                                <div class="font-bold font-sans text-xs text-text-main flex items-center gap-1"><span class="material-symbols-outlined text-[14px] text-[#EA580C]">smart_toy</span> GeoVision V2.1</div>
+                                <div class="text-[9px] text-text-muted mt-0.5">Modèle IA Segmentation</div>
+                            </td>
+                            <td class="p-3">
+                                <span class="bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded uppercase tracking-wider font-bold text-[9px] mr-1">Détection</span>
+                                Génération Alerte GG-2458
+                                <div class="text-[9px] text-text-muted mt-1 truncate max-w-[200px]">Détection changement spectral (NDVI -74%)</div>
+                            </td>
+                            <td class="p-3"><span class="text-text-main font-bold flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">info</span> Réussi (94%)</span></td>
+                            <td class="p-3 text-right">
+                                <button class="bg-gray-100 hover:bg-sidebar hover:text-white font-sans text-text-main px-3 py-1 rounded text-[10px] font-bold transition-colors">Log IA</button>
+                            </td>
+                        </tr>
+
+                        <!-- Event 3 -->
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="p-3 text-text-muted">04/09/2026<br>09:45:10 UTC</td>
+                            <td class="p-3">
+                                <div class="font-bold font-sans text-xs text-text-main flex items-center gap-1"><span class="material-symbols-outlined text-[14px] text-text-muted">satellite_alt</span> Sentinel-2 L2A</div>
+                                <div class="text-[9px] text-text-muted mt-0.5">Source Donnée</div>
+                            </td>
+                            <td class="p-3">
+                                <span class="bg-gray-200 text-text-main px-1.5 py-0.5 rounded uppercase tracking-wider font-bold text-[9px] mr-1">Ingestion</span>
+                                Tuile 30NVL (Abidjan)
+                                <div class="text-[9px] text-text-muted mt-1 truncate max-w-[200px]">Stockage imagerie et métadonnées (Cloud)</div>
+                            </td>
+                            <td class="p-3"><span class="text-text-main font-bold flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">cloud_done</span> Sécurisé</span></td>
+                            <td class="p-3 text-right">
+                                <button class="bg-gray-100 hover:bg-sidebar hover:text-white font-sans text-text-main px-3 py-1 rounded text-[10px] font-bold transition-colors">Signature</button>
+                            </td>
+                        </tr>
+                        
+                        <!-- Event 4 (Security Incident Mock) -->
+                        <tr class="hover:bg-error/5 transition-colors bg-error/5">
+                            <td class="p-3 text-text-muted">03/09/2026<br>23:14:02 UTC</td>
+                            <td class="p-3">
+                                <div class="font-bold font-sans text-xs text-error flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">warning</span> IP 192.168.x.x</div>
+                                <div class="text-[9px] text-text-muted mt-0.5">Accès externe</div>
+                            </td>
+                            <td class="p-3">
+                                <span class="bg-error/20 text-error px-1.5 py-0.5 rounded uppercase tracking-wider font-bold text-[9px] mr-1">Auth_Failed</span>
+                                Tentative connexion Admin
+                                <div class="text-[9px] text-error mt-1 truncate max-w-[200px]">3 échecs MDP consécutifs. Compte bloqué.</div>
+                            </td>
+                            <td class="p-3"><span class="text-error font-bold flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">block</span> Bloqué</span></td>
+                            <td class="p-3 text-right">
+                                <button class="bg-error text-white font-sans px-3 py-1 rounded text-[10px] font-bold transition-colors shadow-sm">Résoudre</button>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- DROITE : GOUVERNANCE IA (40%) -->
+        <div class="w-full lg:w-[40%] flex flex-col gap-6">
+            
+            <!-- AI Governance Center -->
+            <div class="bg-white border border-gray-200 rounded-2xl shadow-sm flex flex-col">
+                <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                    <h2 class="text-sm font-bold text-text-main uppercase tracking-wider flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">psychology</span> Gouvernance des Modèles IA
+                    </h2>
+                </div>
+                
+                <div class="p-5 space-y-5">
+                    
+                    <!-- Model 1 -->
+                    <div class="flex items-start justify-between border-b border-gray-100 pb-4">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <h3 class="text-xs font-bold text-text-main">GeoGuard Vision (Changements)</h3>
+                                <span class="bg-primary/10 text-primary px-1.5 py-0.5 rounded text-[9px] font-bold">V 3.2 (Actif)</span>
+                            </div>
+                            <p class="text-[10px] text-text-muted mb-2">Entraîné sur 2.5M images satellitaires.</p>
+                            <div class="flex items-center gap-4 text-[9px] font-bold">
+                                <span class="text-text-main flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">person</span> K. Dupont (Resp.)</span>
+                                <span class="text-[#16A34A] flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">analytics</span> Précision: 96%</span>
+                            </div>
+                        </div>
+                        <button class="text-text-muted hover:text-primary"><span class="material-symbols-outlined text-[18px]">info</span></button>
+                    </div>
+
+                    <!-- Model 2 -->
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <h3 class="text-xs font-bold text-text-main">Eco-Classifier (Végétation)</h3>
+                                <span class="bg-gray-100 text-text-muted px-1.5 py-0.5 rounded text-[9px] font-bold">V 1.4 (Déprécié)</span>
+                            </div>
+                            <p class="text-[10px] text-text-muted mb-2">Modèle de classification d'occupation des sols.</p>
+                            
+                            <!-- AI Drift Monitoring Alert -->
+                            <div class="bg-[#EA580C]/10 border border-[#EA580C]/20 p-2 rounded flex items-start gap-2">
+                                <span class="material-symbols-outlined text-[#EA580C] text-[14px]">trending_down</span>
+                                <div>
+                                    <span class="text-[10px] font-bold text-[#EA580C] block">AI Drift Détecté</span>
+                                    <span class="text-[9px] text-[#EA580C]">Précision en baisse sur zones agricoles (84%). Mise à jour requise.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preuve d'intégrité (Mock) -->
+            <div class="bg-sidebar border border-sidebar rounded-2xl shadow-sm p-5 text-white relative overflow-hidden flex-1">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-primary/20 rounded-bl-full pointer-events-none"></div>
+                <h2 class="text-sm font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-[18px]">verified</span> Registre Cryptographique
+                </h2>
+                <p class="text-[10px] text-white/70 mb-4 leading-relaxed">
+                    Toutes les alertes et rapports générés par GeoGuard V2 sont signés numériquement pour garantir leur opposabilité juridique.
+                </p>
+                <div class="bg-black/30 border border-white/10 rounded-lg p-3 font-mono text-[9px] text-primary break-all">
+                    > SHA-256 HASH LATEST_REPORT:<br>
+                    e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- SLIDE-OVER : TRAÇABILITÉ COMPLÈTE ALERTE -->
+<!-- ========================================== -->
+<!-- Backdrop -->
+<div id="traceability-slideover-backdrop" class="fixed inset-0 bg-black/40 z-[90] hidden transition-opacity opacity-0 backdrop-blur-sm" onclick="closeTraceabilitySlideover()"></div>
+
+<!-- Drawer -->
+<div id="traceability-slideover" class="fixed top-0 right-0 h-screen w-full md:w-[500px] bg-slate-50 shadow-2xl z-[100] transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col border-l border-gray-200">
+    
+    <!-- Header Drawer -->
+    <div class="bg-white border-b border-gray-200 p-4 flex justify-between items-start shrink-0">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="bg-gray-100 text-text-main px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border border-gray-200 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[12px]">history</span> Inspection Audit
+                </span>
+            </div>
+            <h2 class="text-lg font-bold text-text-main">Alerte GG-2458</h2>
+            <p class="text-xs text-text-muted font-mono">Chain of Custody (Traçabilité complète)</p>
+        </div>
+        <button onclick="closeTraceabilitySlideover()" class="text-text-muted hover:text-text-main w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100"><span class="material-symbols-outlined">close</span></button>
+    </div>
+
+    <!-- Scrollable Timeline -->
+    <div class="flex-1 overflow-y-auto p-6 custom-scrollbar relative">
+        
+        <!-- Timeline Line -->
+        <div class="absolute left-10 top-8 bottom-8 w-px bg-gray-200"></div>
+
+        <div class="space-y-8 relative">
+            
+            <!-- Step 1 : Source -->
+            <div class="flex items-start gap-4">
+                <div class="w-8 h-8 rounded-full bg-white border-2 border-primary text-primary flex items-center justify-center shrink-0 z-10 shadow-sm">
+                    <span class="material-symbols-outlined text-[16px]">satellite_alt</span>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-lg p-3 shadow-sm flex-1">
+                    <span class="text-[9px] text-text-muted font-bold block mb-1">1. Acquisition Donnée</span>
+                    <h4 class="text-xs font-bold text-text-main">Image Sentinel-2 L2A</h4>
+                    <p class="text-[10px] text-text-muted font-mono mt-1">ID: S2A_20260904_30NVL<br>Reçu le: 04/09/2026 09:45</p>
+                </div>
+            </div>
+
+            <!-- Step 2 : IA -->
+            <div class="flex items-start gap-4">
+                <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shrink-0 z-10 shadow-md">
+                    <span class="material-symbols-outlined text-[16px]">psychology</span>
+                </div>
+                <div class="bg-white border border-primary/30 rounded-lg p-3 shadow-sm flex-1">
+                    <span class="text-[9px] text-text-muted font-bold block mb-1">2. Analyse Algorithmique</span>
+                    <h4 class="text-xs font-bold text-primary">Détection Automatique</h4>
+                    <p class="text-[10px] text-text-main font-medium mt-1">L'IA <strong>GeoVision V2.1</strong> a détecté une anomalie (Baisse NDVI).</p>
+                    <div class="mt-2 bg-gray-50 p-2 rounded border border-gray-100 text-[9px] font-mono text-text-muted">
+                        Confiance: 94%<br>Surface: 12.5ha<br>Date: 04/09/2026 10:15
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3 : Humain -->
+            <div class="flex items-start gap-4">
+                <div class="w-8 h-8 rounded-full bg-white border-2 border-info text-info flex items-center justify-center shrink-0 z-10 shadow-sm">
+                    <span class="material-symbols-outlined text-[16px]">verified_user</span>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-lg p-3 shadow-sm flex-1">
+                    <span class="text-[9px] text-text-muted font-bold block mb-1">3. Décision Humaine</span>
+                    <h4 class="text-xs font-bold text-text-main">Validation Experte</h4>
+                    <p class="text-[10px] text-text-main font-medium mt-1">Confirmé par l'analyste <strong>J. Dupont</strong>.</p>
+                    <p class="text-[10px] text-text-muted font-mono mt-1">Date: 04/09/2026 10:32</p>
+                </div>
+            </div>
+
+            <!-- Step 4 : Action -->
+            <div class="flex items-start gap-4">
+                <div class="w-8 h-8 rounded-full bg-white border-2 border-gray-300 text-gray-400 flex items-center justify-center shrink-0 z-10 shadow-sm">
+                    <span class="material-symbols-outlined text-[16px]">directions_run</span>
+                </div>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 shadow-sm flex-1 opacity-60">
+                    <span class="text-[9px] text-text-muted font-bold block mb-1">4. Action Terrain</span>
+                    <h4 class="text-xs font-bold text-text-muted">Mission MIS-2026-0045</h4>
+                    <p class="text-[10px] text-text-muted font-medium mt-1">En cours d'exécution.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function openTraceabilitySlideover() {
+        const slideover = document.getElementById('traceability-slideover');
+        const backdrop = document.getElementById('traceability-slideover-backdrop');
+        
+        backdrop.classList.remove('hidden');
+        setTimeout(() => {
+            backdrop.classList.remove('opacity-0');
+            slideover.classList.remove('translate-x-full');
+        }, 10);
+    }
+
+    function closeTraceabilitySlideover() {
+        const slideover = document.getElementById('traceability-slideover');
+        const backdrop = document.getElementById('traceability-slideover-backdrop');
+        
+        slideover.classList.add('translate-x-full');
+        backdrop.classList.add('opacity-0');
+        
+        setTimeout(() => {
+            backdrop.classList.add('hidden');
+        }, 300);
+    }
+</script>
+{% endblock %}

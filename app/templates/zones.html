@@ -1,0 +1,332 @@
+{% set active_page = "zones" %}
+{% extends "base.html" %}
+
+{% block topbar %}
+<header class="bg-white border-b border-gray-200 hidden md:flex flex-col md:flex-row md:justify-between md:items-center gap-4 px-6 h-16 w-full sticky top-0 z-20">
+    <div class="flex flex-col">
+        <h1 class="text-lg font-bold text-text-main leading-tight flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">landscape</span> Gestion territoriale
+        </h1>
+        <p class="text-[11px] text-text-muted font-medium">Surveillance intelligente des zones GeoGuard</p>
+    </div>
+    
+    <div class="flex items-center gap-3">
+        <button class="bg-white hover:bg-gray-50 text-text-main border border-gray-200 rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">add</span> Créer zone
+        </button>
+        <button onclick="toggleModal('import-modal')" class="bg-primary hover:bg-sidebar text-white rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">file_upload</span> Importer territoire
+        </button>
+        <button class="bg-white hover:bg-gray-50 text-text-main border border-gray-200 rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">analytics</span> Analyser portefeuille
+        </button>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+
+<div class="p-6 w-full mx-auto space-y-6 flex flex-col h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar bg-slate-50">
+
+    <!-- KPI TERRITORIAUX (EXACTEMENT 6 CARTES) -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 shrink-0">
+        <!-- KPI 1 -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Zones surveillées</h3>
+            <div class="text-3xl font-black text-text-main leading-none">845</div>
+        </div>
+        <!-- KPI 2 -->
+        <div class="bg-error/5 border border-error/30 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-error uppercase tracking-wider mb-2">Zones critiques</h3>
+            <div class="text-3xl font-black text-error leading-none">32</div>
+        </div>
+        <!-- KPI 3 -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Surface Totale</h3>
+            <div class="text-2xl font-black text-text-main leading-tight mt-1">2.5 M <span class="text-sm">ha</span></div>
+        </div>
+        <!-- KPI 4 -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Évolution Végétation</h3>
+            <div class="text-3xl font-black text-error leading-none flex items-center gap-1">
+                <span class="material-symbols-outlined text-[20px]">trending_down</span> -6 %
+            </div>
+        </div>
+        <!-- KPI 5 -->
+        <div class="bg-[#EA580C]/5 border border-[#EA580C]/30 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-[#EA580C] uppercase tracking-wider mb-2">Action Requise</h3>
+            <div class="text-3xl font-black text-[#EA580C] leading-none">18</div>
+        </div>
+        <!-- KPI 6 -->
+        <div class="bg-primary/5 border border-primary/20 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-primary uppercase tracking-wider mb-2">Dernière MAJ IA</h3>
+            <div class="text-lg font-black text-primary leading-tight mt-2">Auj. 10:30</div>
+        </div>
+    </div>
+
+    <!-- SPLIT SCREEN : TABLEAU (10 Lignes Max) + CARTE SYNTHÈSE -->
+    <div class="flex flex-col lg:flex-row gap-6 flex-1 min-h-[500px]">
+        
+        <!-- GAUCHE : TABLEAU DES ZONES PRIORITAIRES (70%) -->
+        <div class="w-full lg:w-[70%] bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden flex flex-col">
+            <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                <h2 class="text-sm font-bold text-text-main uppercase tracking-wider flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">list</span> Zones Prioritaires
+                </h2>
+                <span class="text-[10px] font-bold text-text-muted">Limité aux 10 zones critiques (Priority Engine)</span>
+            </div>
+            
+            <div class="overflow-y-auto flex-1 custom-scrollbar">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-white text-[10px] text-text-muted uppercase tracking-wider border-b border-gray-200">
+                            <th class="p-3 font-bold">Nom zone</th>
+                            <th class="p-3 font-bold">Type</th>
+                            <th class="p-3 font-bold">Surface</th>
+                            <th class="p-3 font-bold">Risque</th>
+                            <th class="p-3 font-bold">Surveillance</th>
+                            <th class="p-3 font-bold">Dernière analyse</th>
+                            <th class="p-3 font-bold text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm text-text-main divide-y divide-gray-100">
+                        
+                        <!-- Ligne 1 : Parc National Banco -->
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="p-3">
+                                <div class="font-bold text-error flex items-center gap-1">
+                                    <span class="w-2 h-2 rounded-full bg-error animate-pulse block"></span> Parc National Banco
+                                </div>
+                            </td>
+                            <td class="p-3"><span class="px-2 py-0.5 bg-green-100 text-green-700 rounded text-[9px] font-bold uppercase">Forêt Protégée</span></td>
+                            <td class="p-3 font-medium">3 500 ha</td>
+                            <td class="p-3">
+                                <div class="flex items-center gap-1 text-error font-bold">76<span class="text-[10px] font-normal text-text-muted">/100</span></div>
+                            </td>
+                            <td class="p-3">
+                                <span class="px-2 py-0.5 bg-error/10 text-error rounded text-[9px] font-bold uppercase tracking-wider border border-error/20">Haute</span>
+                            </td>
+                            <td class="p-3 text-xs text-text-muted">Il y a 2h</td>
+                            <td class="p-3 text-right">
+                                <button onclick="window.location.href='/territory-profile'" class="bg-gray-100 hover:bg-gray-200 text-text-main px-3 py-1 rounded text-[10px] font-bold transition-colors">Dossier</button>
+                            </td>
+                        </tr>
+
+                        <!-- Ligne 2 : Taï -->
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="p-3">
+                                <div class="font-bold text-[#EA580C] flex items-center gap-1">
+                                    <span class="w-2 h-2 rounded-full bg-[#EA580C] block"></span> Forêt de Taï
+                                </div>
+                            </td>
+                            <td class="p-3"><span class="px-2 py-0.5 bg-green-100 text-green-700 rounded text-[9px] font-bold uppercase">Forêt Protégée</span></td>
+                            <td class="p-3 font-medium">12 400 ha</td>
+                            <td class="p-3">
+                                <div class="flex items-center gap-1 text-[#EA580C] font-bold">68<span class="text-[10px] font-normal text-text-muted">/100</span></div>
+                            </td>
+                            <td class="p-3">
+                                <span class="px-2 py-0.5 bg-orange-100 text-orange-700 rounded text-[9px] font-bold uppercase tracking-wider border border-orange-200">Renforcée</span>
+                            </td>
+                            <td class="p-3 text-xs text-text-muted">Il y a 6h</td>
+                            <td class="p-3 text-right">
+                                <button onclick="window.location.href='/territory-profile'" class="bg-gray-100 hover:bg-gray-200 text-text-main px-3 py-1 rounded text-[10px] font-bold transition-colors">Dossier</button>
+                            </td>
+                        </tr>
+
+                        <!-- Ligne 3 : Urbain -->
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="p-3">
+                                <div class="font-bold text-text-main flex items-center gap-1">
+                                    <span class="w-2 h-2 rounded-full bg-[#F59E0B] block"></span> Périphérie Nord
+                                </div>
+                            </td>
+                            <td class="p-3"><span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-[9px] font-bold uppercase">Urbain</span></td>
+                            <td class="p-3 font-medium">1 200 ha</td>
+                            <td class="p-3">
+                                <div class="flex items-center gap-1 text-[#b45309] font-bold">55<span class="text-[10px] font-normal text-text-muted">/100</span></div>
+                            </td>
+                            <td class="p-3">
+                                <span class="px-2 py-0.5 bg-gray-100 text-text-muted rounded text-[9px] font-bold uppercase tracking-wider border border-gray-200">Standard</span>
+                            </td>
+                            <td class="p-3 text-xs text-text-muted">Hier</td>
+                            <td class="p-3 text-right">
+                                <button class="bg-gray-100 hover:bg-gray-200 text-text-main px-3 py-1 rounded text-[10px] font-bold transition-colors">Dossier</button>
+                            </td>
+                        </tr>
+
+                        <!-- Filler -->
+                        {% for i in range(7) %}
+                        <tr class="hover:bg-gray-50 transition-colors opacity-70">
+                            <td class="p-3">
+                                <div class="font-bold text-text-main flex items-center gap-1">
+                                    <span class="w-2 h-2 rounded-full bg-gray-400 block"></span> Secteur {{ i+4 }}
+                                </div>
+                            </td>
+                            <td class="p-3"><span class="px-2 py-0.5 bg-gray-100 text-text-muted rounded text-[9px] font-bold uppercase">Agricole</span></td>
+                            <td class="p-3 font-medium">850 ha</td>
+                            <td class="p-3">
+                                <div class="flex items-center gap-1 font-bold">{{ 40 - i }}<span class="text-[10px] font-normal text-text-muted">/100</span></div>
+                            </td>
+                            <td class="p-3">
+                                <span class="px-2 py-0.5 bg-gray-100 text-text-muted rounded text-[9px] font-bold uppercase tracking-wider border border-gray-200">Standard</span>
+                            </td>
+                            <td class="p-3 text-xs text-text-muted">Hier</td>
+                            <td class="p-3 text-right">
+                                <button class="bg-gray-100 hover:bg-gray-200 text-text-main px-3 py-1 rounded text-[10px] font-bold transition-colors">Dossier</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- DROITE : CARTE SYNTHÈSE (30%) -->
+        <div class="w-full lg:w-[30%] bg-white border border-gray-200 rounded-2xl shadow-sm relative overflow-hidden flex flex-col">
+            <div class="absolute top-4 left-4 z-10 bg-white/95 backdrop-blur border border-gray-200 px-3 py-2 rounded-lg shadow-sm flex items-center gap-3">
+                <span class="material-symbols-outlined text-text-main text-[18px]">map</span>
+                <div>
+                    <h2 class="text-xs font-bold text-text-main">Cartographie</h2>
+                    <p class="text-[9px] text-text-muted">Niveaux de surveillance</p>
+                </div>
+            </div>
+            
+            <div id="zones-map" class="w-full h-full bg-slate-900"></div>
+
+            <div class="absolute bottom-4 right-4 z-10">
+                <div class="bg-white/95 backdrop-blur p-2 rounded-lg border border-gray-200 shadow-sm flex flex-col gap-1 text-[10px] font-bold text-text-main">
+                    <div class="flex items-center gap-2"><div class="w-3 h-3 bg-error opacity-50 border border-error"></div> Priorité Critique</div>
+                    <div class="flex items-center gap-2"><div class="w-3 h-3 bg-[#EA580C] opacity-50 border border-[#EA580C]"></div> Surveillance Renforcée</div>
+                    <div class="flex items-center gap-2"><div class="w-3 h-3 bg-primary opacity-50 border border-primary"></div> Standard</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL : IMPORTER TERRITOIRE (GEOJSON) -->
+<!-- ========================================== -->
+<div id="import-modal" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col">
+        <div class="bg-sidebar p-4 flex justify-between items-center">
+            <h2 class="text-white font-bold text-sm flex items-center gap-2">
+                <span class="material-symbols-outlined">file_upload</span> Importer un territoire
+            </h2>
+            <button onclick="toggleModal('import-modal')" class="text-white/70 hover:text-white"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        
+        <div class="p-6 space-y-6">
+            <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer group">
+                <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform mb-4">
+                    <span class="material-symbols-outlined text-[32px]">upload_file</span>
+                </div>
+                <p class="text-sm font-bold text-text-main mb-1">Glissez-déposez votre fichier ici</p>
+                <p class="text-xs text-text-muted">Support : GeoJSON, Shapefile (.zip), KML</p>
+            </div>
+
+            <div class="bg-[#f59e0b]/10 border border-[#f59e0b]/30 p-3 rounded-lg flex gap-3">
+                <span class="material-symbols-outlined text-[#f59e0b]">auto_awesome</span>
+                <p class="text-[10px] text-[#b45309] leading-relaxed">
+                    Après l'importation, <strong>GeoGuard AI Engine</strong> analysera automatiquement la zone pour établir son profil environnemental et définir son niveau de surveillance.
+                </p>
+            </div>
+        </div>
+        
+        <div class="p-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
+            <button onclick="toggleModal('import-modal')" class="px-4 py-2 text-xs font-bold text-text-muted hover:bg-gray-200 rounded-lg transition-colors">Annuler</button>
+            <button class="px-4 py-2 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary/90 transition-colors shadow-md">Importer & Analyser</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal.classList.contains('hidden')) {
+            modal.classList.remove('hidden');
+        } else {
+            modal.classList.add('hidden');
+        }
+    }
+
+    // -------------------------------------------------------------
+    // MAPBOX GL JS INIT (Carte Synthèse des Zones)
+    // -------------------------------------------------------------
+    mapboxgl.accessToken = 'VOTRE_TOKEN_MAPBOX'; // Demo Token
+    const map = new mapboxgl.Map({
+        container: 'zones-map',
+        style: 'mapbox://styles/mapbox/satellite-v9', // Fond satellite
+        center: [-4.0244, 5.3453], // Côte d'Ivoire
+        zoom: 10,
+        attributionControl: false
+    });
+
+    map.on('load', () => {
+        // Source GeoJSON simulée pour les polygones
+        map.addSource('zones-data', {
+            'type': 'geojson',
+            'data': {
+                'type': 'FeatureCollection',
+                'features': [
+                    // Zone Banco (Critique)
+                    {
+                        'type': 'Feature',
+                        'properties': { 'risk': 'high' },
+                        'geometry': {
+                            'type': 'Polygon',
+                            'coordinates': [[[-4.06, 5.38], [-4.03, 5.38], [-4.02, 5.42], [-4.06, 5.42], [-4.06, 5.38]]]
+                        }
+                    },
+                    // Zone standard
+                    {
+                        'type': 'Feature',
+                        'properties': { 'risk': 'low' },
+                        'geometry': {
+                            'type': 'Polygon',
+                            'coordinates': [[[-4.10, 5.30], [-4.05, 5.30], [-4.05, 5.35], [-4.10, 5.35], [-4.10, 5.30]]]
+                        }
+                    }
+                ]
+            }
+        });
+
+        // Layer Remplissage
+        map.addLayer({
+            'id': 'zones-fill',
+            'type': 'fill',
+            'source': 'zones-data',
+            'paint': {
+                'fill-color': [
+                    'match',
+                    ['get', 'risk'],
+                    'high', '#dc2626',
+                    'low', '#16a34a',
+                    '#f59e0b'
+                ],
+                'fill-opacity': 0.4
+            }
+        });
+
+        // Layer Contour
+        map.addLayer({
+            'id': 'zones-line',
+            'type': 'line',
+            'source': 'zones-data',
+            'paint': {
+                'line-color': [
+                    'match',
+                    ['get', 'risk'],
+                    'high', '#dc2626',
+                    'low', '#16a34a',
+                    '#f59e0b'
+                ],
+                'line-width': 2
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GeoGuard - {% block title %}Abidjan{% endblock %}</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_3d.png') }}"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+    /* Masquer la scrollbar (Chrome, Safari, Opera) */
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    /* Masquer la scrollbar (IE, Edge, Firefox) */
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    
+    /* Scrollbar personnalisée élégante pour le reste */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+    .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+        background: #94a3b8;
+    }
+</style>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "primary": "#16A34A",
+          "sidebar": "#052E16",
+          "background": "#F8FAFC",
+          "surface": "#FFFFFF",
+          "text-main": "#0F172A",
+          "text-muted": "#64748B",
+          "critical": "#DC2626",
+          "high": "#EA580C",
+          "medium": "#F59E0B",
+          "info": "#2563EB",
+          "outline": "#E2E8F0"
+        },
+        "fontFamily": {
+          "sans": ['Inter', 'sans-serif'],
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "xl": "32px",
+                "unit": "4px",
+                "xs": "4px",
+                "sm": "8px",
+                "lg": "24px",
+                "gutter": "16px",
+                "sidebar-width": "280px",
+                "md": "16px"
+        }
+      }
+    }
+  }
+</script>
+</head>
+<body class="bg-background text-text-main font-sans min-h-[calc(100vh-64px)] md:h-screen overflow-hidden flex">
+
+<!-- Mobile Header (Visible only on small screens) -->
+<div class="md:hidden fixed top-0 left-0 w-full h-16 bg-white border-b border-gray-200 z-30 flex items-center justify-between px-4">
+    <div class="flex items-center gap-3">
+        <img alt="GeoGuard Logo" class="w-8 h-8 object-contain" src="{{ url_for('static', filename='logo_3d.png') }}"/>
+        <h1 class="text-lg font-bold text-text-main">GeoGuard</h1>
+    </div>
+    <button id="mobile-menu-btn" class="p-2 text-text-muted hover:bg-gray-100 rounded-lg">
+        <span class="material-symbols-outlined">menu</span>
+    </button>
+</div>
+
+<!-- Mobile Backdrop -->
+<div id="sidebar-backdrop" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden transition-opacity opacity-0"></div>
+
+<!-- SideNavBar -->
+<aside id="sidebar" class="fixed left-0 top-0 h-full w-[288px] bg-sidebar border-r border-sidebar shadow-sm flex flex-col py-8 px-4 z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out md:z-20">
+<div class="mb-8 flex items-center justify-between px-2">
+    <div class="flex items-center gap-3">
+        <img alt="GeoGuard Logo" class="w-12 h-12 object-contain drop-shadow-md brightness-200" src="{{ url_for('static', filename='logo_3d.png') }}"/>
+        <div>
+            <h1 class="text-2xl font-bold text-white">GeoGuard</h1>
+            <p class="text-xs text-white/70">Intelligence Géospatiale</p>
+        </div>
+    </div>
+    <!-- Close button for mobile -->
+    <button id="close-sidebar-btn" class="md:hidden text-white/70 hover:text-white p-1">
+        <span class="material-symbols-outlined">close</span>
+    </button>
+</div>
+<nav class="flex-1 flex flex-col min-h-0 overflow-hidden">
+{% set menu_sections = [
+  ('NAVIGATION', [
+    ('dashboard', '/', 'dashboard', 'Dashboard'),
+    ('map', '/map', 'map', 'Carte'),
+    ('alertes', '/alertes', 'warning', 'Alertes'),
+    ('analyses', '/analyses', 'analytics', 'Analyse IA'),
+    ('satellites', '/satellites', 'satellite_alt', 'Imagerie'),
+    ('environnement', '/environnement', 'eco', 'Environnement'),
+    ('missions', '/missions', 'directions_run', 'Missions'),
+    ('rapports', '/rapports', 'assessment', 'Rapports'),
+    ('intelligence', '/digital-twin', 'psychology', 'Intelligence'),
+    ('integrations', '/integrations', 'hub', 'Intégrations'),
+    ('admin', '/securite', 'verified_user', 'Audit & Conformité')
+  ])
+] %}
+
+<div class="flex-1 overflow-y-auto py-6 space-y-8 no-scrollbar">
+{% for section_name, section_items in menu_sections %}
+  <div class="px-4 mb-2">
+    <div class="text-[11px] font-bold text-white/50 uppercase tracking-wider mb-3 px-2">{{ section_name }}</div>
+    <div class="space-y-1">
+    {% for id, href, icon, title in section_items %}
+      {% if active_page == id %}
+      <a class="flex items-center gap-3 p-2 bg-primary/20 text-white rounded-[10px] transition-all border border-primary/30" href="{{ href }}">
+        <span class="material-symbols-outlined text-[20px] text-primary">{{ icon }}</span>
+        <span class="text-[14px] font-bold">{{ title }}</span>
+      </a>
+      {% else %}
+      <a class="flex items-center gap-3 p-2 text-white/70 hover:bg-white/10 hover:text-white rounded-[10px] transition-all" href="{{ href }}">
+        <span class="material-symbols-outlined text-[20px]">{{ icon }}</span>
+        <span class="text-[14px] font-medium">{{ title }}</span>
+      </a>
+      {% endif %}
+    {% endfor %}
+    </div>
+  </div>
+{% endfor %}
+</div>
+</nav>
+<div class="mt-auto pt-6 border-t border-white/10 space-y-2">
+<a class="flex items-center gap-3 p-2 text-white/70 hover:bg-white/10 hover:text-white rounded-[10px] transition-all" href="/parametres">
+<span class="material-symbols-outlined text-[20px]">account_circle</span>
+<span class="text-[14px] font-medium">Mon Profil</span>
+</a>
+<a class="flex items-center gap-3 p-2 text-white/70 hover:bg-white/10 hover:text-white rounded-[10px] transition-all" href="/">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+<span class="text-[14px] font-medium">Déconnexion</span>
+</a>
+</div>
+</aside>
+
+<!-- Main Content Area -->
+<main class="md:ml-[288px] ml-0 flex-1 flex flex-col h-full bg-white overflow-y-auto pt-16 md:pt-0 transition-all duration-300">
+<!-- TopAppBar -->
+{% block topbar %}
+<header class="bg-white border-b border-gray-200 hidden md:flex flex-col md:flex-row md:justify-between md:items-center gap-4 px-6 h-16 w-full sticky top-0 z-10">
+<div class="flex flex-col">
+<h2 class="text-[20px] font-semibold text-text-main">{% block header_title %}Surveillance territoriale{% endblock %}</h2>
+<span class="text-[11px] text-text-muted">{% block header_subtitle %}Abidjan, Côte d'Ivoire{% endblock %}</span>
+</div>
+<div class="flex items-center gap-4">
+<a href="/satellites" class="text-text-muted hover:text-primary transition-colors hover:ring-2 ring-primary rounded-full p-1 flex">
+<span class="material-symbols-outlined">satellite</span>
+</a>
+<a href="/historique" class="text-text-muted hover:text-primary transition-colors hover:ring-2 ring-primary rounded-full p-1 relative flex">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-critical rounded-full"></span>
+</a>
+<button onclick="window.location.reload();" class="text-text-muted hover:text-primary transition-colors hover:ring-2 ring-primary rounded-full p-1 flex" title="Rafraîchir">
+<span class="material-symbols-outlined">sync</span>
+</button>
+<a href="/parametres" class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center bg-gray-50 text-text-muted hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">person</span>
+</a>
+</div>
+</header>
+{% endblock %}
+<div class="p-4 md:p-6 flex-1 flex flex-col gap-6 overflow-y-auto">
+{% block content %}{% endblock %}
+</div>
+</main>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const closeBtn = document.getElementById('close-sidebar-btn');
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
+        
+        function openSidebar() {
+            sidebar.classList.remove('-translate-x-full');
+            backdrop.classList.remove('hidden');
+            // Small delay for transition
+            setTimeout(() => {
+                backdrop.classList.remove('opacity-0');
+            }, 10);
+        }
+        
+        function closeSidebar() {
+            sidebar.classList.add('-translate-x-full');
+            backdrop.classList.add('opacity-0');
+            setTimeout(() => {
+                backdrop.classList.add('hidden');
+            }, 300);
+        }
+        
+        mobileBtn.addEventListener('click', openSidebar);
+        closeBtn.addEventListener('click', closeSidebar);
+        backdrop.addEventListener('click', closeSidebar);
+
+        // Global Search (CTRL+K)
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                const searchModal = document.getElementById('global-search-modal');
+                searchModal.classList.toggle('hidden');
+                if(!searchModal.classList.contains('hidden')) {
+                    document.getElementById('global-search-input').focus();
+                }
+            }
+        });
+    });
+</script>
+
+<!-- Global Search Modal -->
+<div id="global-search-modal" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-start justify-center pt-24 px-4 backdrop-blur-sm">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden border border-gray-200">
+        <div class="flex items-center px-4 py-3 border-b border-gray-100">
+            <span class="material-symbols-outlined text-text-muted text-[24px] mr-3">search</span>
+            <input type="text" id="global-search-input" placeholder="Rechercher une zone, une alerte, une mission... (ex: Parc National)" class="w-full bg-transparent border-none focus:ring-0 text-text-main text-lg placeholder:text-gray-300 outline-none">
+            <button onclick="document.getElementById('global-search-modal').classList.add('hidden')" class="bg-gray-100 text-gray-500 hover:text-text-main hover:bg-gray-200 px-2 py-1 rounded text-xs font-bold transition-colors">ESC</button>
+        </div>
+        <div class="p-2 bg-gray-50 text-[10px] text-text-muted font-medium text-center uppercase tracking-wider">
+            Tapez pour rechercher dans tout GeoGuard V2
+        </div>
+    </div>
+</div>
+
+<!-- GeoGuard Floating Assistant -->
+<button onclick="toggleAssistant()" class="fixed bottom-6 right-6 w-14 h-14 bg-primary hover:bg-primary/90 text-white rounded-full shadow-xl flex items-center justify-center z-[90] transition-transform hover:scale-110">
+    <span class="material-symbols-outlined text-[28px]">smart_toy</span>
+</button>
+<div id="ai-assistant-panel" class="fixed bottom-24 right-6 w-[350px] bg-white rounded-2xl shadow-2xl border border-gray-200 z-[90] hidden flex-col overflow-hidden transition-all origin-bottom-right">
+    <div class="bg-sidebar p-4 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center"><span class="material-symbols-outlined text-white text-[18px]">assistant</span></div>
+            <div>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider">GeoGuard Assistant</h3>
+                <p class="text-[9px] text-white/70">Agent IA Stratégique (En ligne)</p>
+            </div>
+        </div>
+        <button onclick="toggleAssistant()" class="text-white/70 hover:text-white"><span class="material-symbols-outlined text-[18px]">close</span></button>
+    </div>
+    <div id="assistant-chat-box" class="h-[300px] bg-slate-50 p-4 overflow-y-auto flex flex-col gap-3 custom-scrollbar">
+        <div class="bg-white border border-gray-200 p-3 rounded-lg rounded-tl-none shadow-sm max-w-[85%]">
+            <p class="text-xs text-text-main">Bonjour Directeur. Je suis votre assistant stratégique. Que souhaitez-vous analyser aujourd'hui ?</p>
+        </div>
+    </div>
+    <div class="p-3 bg-white border-t border-gray-200 flex items-center gap-2">
+        <input type="text" id="assistant-input" placeholder="Ex: Quelles zones sont prioritaires ?" class="flex-1 bg-gray-50 border border-gray-200 rounded-full px-3 py-1.5 text-xs focus:outline-none focus:border-primary">
+        <button onclick="sendAssistantMessage()" class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[14px]">send</span></button>
+    </div>
+</div>
+<script>
+    function toggleAssistant() {
+        const panel = document.getElementById('ai-assistant-panel');
+        panel.classList.toggle('hidden');
+        panel.classList.toggle('flex');
+    }
+
+    function sendAssistantMessage() {
+        const input = document.getElementById('assistant-input');
+        const text = input.value.trim();
+        if(!text) return;
+        
+        const chatBox = document.getElementById('assistant-chat-box');
+        
+        // Message Utilisateur
+        const userMsg = document.createElement('div');
+        userMsg.className = "bg-primary text-white p-3 rounded-lg rounded-tr-none shadow-sm max-w-[85%] self-end text-xs";
+        userMsg.innerText = text;
+        chatBox.appendChild(userMsg);
+        
+        input.value = '';
+        chatBox.scrollTop = chatBox.scrollHeight;
+        
+        // Indicateur de frappe
+        const typingMsg = document.createElement('div');
+        typingMsg.className = "bg-white border border-gray-200 p-3 rounded-lg rounded-tl-none shadow-sm max-w-[85%] text-xs text-text-muted italic";
+        typingMsg.id = "typing-indicator";
+        typingMsg.innerText = "L'Assistant réfléchit...";
+        chatBox.appendChild(typingMsg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // Appel API
+        fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text })
+        })
+        .then(response => response.json())
+        .then(data => {
+            typingMsg.remove();
+            const aiMsg = document.createElement('div');
+            aiMsg.className = "bg-white border border-gray-200 p-3 rounded-lg rounded-tl-none shadow-sm max-w-[85%] text-xs text-text-main";
+            aiMsg.innerHTML = data.response;
+            chatBox.appendChild(aiMsg);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        })
+        .catch(err => {
+            typingMsg.remove();
+            showToast("Erreur de connexion à l'IA", "error");
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const input = document.getElementById('assistant-input');
+        if(input) {
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendAssistantMessage();
+                }
+            });
+        }
+    });
+</script>
+
+<!-- Global Toast Component -->
+<div id="global-toast" class="fixed bottom-4 right-4 bg-inverse-surface text-inverse-on-surface px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-y-20 opacity-0 flex items-center gap-3 z-[200]">
+    <span class="material-symbols-outlined text-[20px]" id="toast-icon">info</span>
+    <span id="toast-msg" class="font-label-md text-sm"></span>
+</div>
+<script>
+    function showToast(message, type='info') {
+        const toast = document.getElementById('global-toast');
+        document.getElementById('toast-msg').innerText = message;
+        document.getElementById('toast-icon').innerText = type === 'error' ? 'error' : (type === 'success' ? 'check_circle' : 'info');
+        toast.classList.remove('translate-y-20', 'opacity-0');
+        setTimeout(() => {
+            toast.classList.add('translate-y-20', 'opacity-0');
+        }, 3000);
+    }
+</script>
+
+</body>
+</html>

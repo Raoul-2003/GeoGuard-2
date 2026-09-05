@@ -1,0 +1,382 @@
+{% set active_page = "historique" %}
+{% extends "base.html" %}
+
+{% block topbar %}
+<!-- Custom Alerts Header -->
+<header class="bg-white border-b border-gray-200 px-6 h-16 flex items-center justify-between z-10 sticky top-0 shrink-0">
+    <div class="flex flex-col">
+        <h1 class="text-lg font-bold text-text-main leading-tight">Centre des alertes</h1>
+        <p class="text-[11px] text-text-muted">Gestion et suivi des anomalies détectées par GeoGuard AI</p>
+    </div>
+    <div class="flex items-center gap-3">
+        <button onclick="window.location.reload();" class="text-text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-white-variant flex items-center justify-center" title="Actualiser">
+            <span class="material-symbols-outlined text-[20px]">refresh</span>
+        </button>
+        <button class="bg-white border border-gray-200 hover:bg-white-variant text-text-main px-4 py-1.5 rounded-[10px] text-sm font-medium transition-colors flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">download</span> Exporter les alertes
+        </button>
+        <button class="bg-white hover:bg-white-container hover:text-text-main-container text-text-main px-4 py-1.5 rounded-[10px] text-sm font-medium transition-colors shadow-sm flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">add_circle</span> Nouvelle analyse
+        </button>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="relative w-full h-[calc(100vh-64px)] flex overflow-hidden bg-white">
+    <!-- Main Scrollable Area -->
+    <div class="flex-1 overflow-y-auto p-6 flex flex-col gap-6" id="main-alerts-area">
+        
+        <!-- KPI Row -->
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 shrink-0">
+            <!-- Card 1 -->
+            <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+                <span class="text-xs font-medium text-text-muted">Total alertes</span>
+                <div class="flex items-end justify-between mt-1">
+                    <span class="text-2xl font-bold text-text-main">245</span>
+                    <span class="text-[10px] text-secondary font-medium bg-white/10 px-1.5 py-0.5 rounded">+18 cette semaine</span>
+                </div>
+            </div>
+            <!-- Card 2 -->
+            <div class="bg-white border-l-4 border-l-error border-y border-r border-gray-200 rounded-2xl p-4 shadow-sm">
+                <span class="text-xs font-medium text-critical font-bold">Alertes critiques</span>
+                <div class="flex items-end mt-1">
+                    <span class="text-2xl font-bold text-critical">23</span>
+                </div>
+            </div>
+            <!-- Card 3 -->
+            <div class="bg-white border-l-4 border-l-[#f59e0b] border-y border-r border-gray-200 rounded-2xl p-4 shadow-sm">
+                <span class="text-xs font-medium text-medium font-bold">En attente de validation</span>
+                <div class="flex items-end mt-1">
+                    <span class="text-2xl font-bold text-medium">46</span>
+                </div>
+            </div>
+            <!-- Card 4 -->
+            <div class="bg-white border-l-4 border-l-secondary border-y border-r border-gray-200 rounded-2xl p-4 shadow-sm">
+                <span class="text-xs font-medium text-secondary font-bold">Confirmées terrain</span>
+                <div class="flex items-end mt-1">
+                    <span class="text-2xl font-bold text-secondary">132</span>
+                </div>
+            </div>
+            <!-- Card 5 -->
+            <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+                <span class="text-xs font-medium text-text-muted">Temps moyen résolution</span>
+                <div class="flex items-end mt-1 gap-2">
+                    <span class="text-2xl font-bold text-text-main">18</span>
+                    <span class="text-xs text-text-muted font-medium mb-1">heures</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters Bar -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-3 shadow-sm flex flex-wrap items-center gap-3 shrink-0">
+            <div class="flex-1 min-w-[250px] bg-white-variant/50 border border-gray-200 rounded flex items-center px-3 h-9 focus-within:border-primary">
+                <span class="material-symbols-outlined text-text-muted mr-2 text-[18px]">search</span>
+                <input class="bg-transparent border-none p-0 flex-1 text-sm font-medium outline-none" placeholder="Rechercher une alerte, une zone, un ID..." type="text"/>
+            </div>
+            <select class="bg-gray-50 border border-gray-200 text-xs rounded px-2 h-9 outline-none focus:border-primary">
+                <option>Statut: Toutes</option>
+                <option>Nouvelles</option>
+                <option>En analyse</option>
+                <option>Confirmées</option>
+                <option>Rejetées</option>
+                <option>Clôturées</option>
+            </select>
+            <select class="bg-gray-50 border border-gray-200 text-xs rounded px-2 h-9 outline-none focus:border-primary">
+                <option>Gravité: Toutes</option>
+                <option>Critique</option>
+                <option>Haute</option>
+                <option>Moyenne</option>
+                <option>Faible</option>
+            </select>
+            <select class="bg-gray-50 border border-gray-200 text-xs rounded px-2 h-9 outline-none focus:border-primary">
+                <option>Type: Tous</option>
+                <option>Déforestation</option>
+                <option>Urbanisation</option>
+                <option>Feu</option>
+                <option>Changement hydrique</option>
+            </select>
+            <select class="bg-gray-50 border border-gray-200 text-xs rounded px-2 h-9 outline-none focus:border-primary">
+                <option>Zone: Toutes</option>
+                <option>Région</option>
+                <option>Département</option>
+            </select>
+            <select class="bg-gray-50 border border-gray-200 text-xs rounded px-2 h-9 outline-none focus:border-primary">
+                <option>Période: 30 jours</option>
+                <option>Aujourd'hui</option>
+                <option>7 jours</option>
+                <option>Personnalisé</option>
+            </select>
+        </div>
+
+        <!-- Main Alerts Table -->
+        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden flex-1 flex flex-col min-min-h-[300px] md:h-[400px]">
+            <div class="overflow-y-auto flex-1">
+                <table class="w-full text-left border-collapse">
+                    <thead class="sticky top-0 z-10">
+                        <tr class="bg-gray-50 border-b border-gray-200 text-[10px] font-bold text-text-muted uppercase tracking-wider">
+                            <th class="p-3">ID</th>
+                            <th class="p-3">Niveau</th>
+                            <th class="p-3">Type</th>
+                            <th class="p-3">Zone</th>
+                            <th class="p-3">Date détection</th>
+                            <th class="p-3">Surface</th>
+                            <th class="p-3 text-center">Confiance IA</th>
+                            <th class="p-3">Statut</th>
+                            <th class="p-3">Responsable</th>
+                            <th class="p-3 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-xs font-medium text-text-main">
+                        
+                        <!-- Row 1 (Critical) -->
+                        <tr class="border-b border-gray-200/50 hover:bg-white-variant/30 transition-colors">
+                            <td class="p-3 font-mono text-text-muted">GG-2026-00458</td>
+                            <td class="p-3"><span class="flex items-center gap-1 text-critical"><span class="material-symbols-outlined text-[14px]">warning</span> Critique</span></td>
+                            <td class="p-3">Déforestation</td>
+                            <td class="p-3">Forêt classée Banco</td>
+                            <td class="p-3">Aujourd'hui, 08:45</td>
+                            <td class="p-3">12.4 ha</td>
+                            <td class="p-3 text-center text-primary font-bold">94%</td>
+                            <td class="p-3"><span class="bg-medium/10 text-medium border border-[#f59e0b]/20 px-2 py-0.5 rounded-full text-[10px] uppercase">En validation</span></td>
+                            <td class="p-3 text-text-muted italic">Non assigné</td>
+                            <td class="p-3 text-right">
+                                <button onclick="openPanel('GG-2026-00458')" class="bg-white border border-gray-200 hover:bg-white-variant px-3 py-1 rounded text-text-main transition-colors shadow-sm">Voir</button>
+                            </td>
+                        </tr>
+
+                        <!-- Row 2 (High) -->
+                        <tr class="border-b border-gray-200/50 hover:bg-white-variant/30 transition-colors">
+                            <td class="p-3 font-mono text-text-muted">GG-2026-00457</td>
+                            <td class="p-3"><span class="flex items-center gap-1 text-medium"><span class="material-symbols-outlined text-[14px]">error</span> Haute</span></td>
+                            <td class="p-3">Urbanisation</td>
+                            <td class="p-3">Périphérie Bingerville</td>
+                            <td class="p-3">Hier, 14:20</td>
+                            <td class="p-3">4.2 ha</td>
+                            <td class="p-3 text-center text-primary font-bold">87%</td>
+                            <td class="p-3"><span class="bg-critical/10 text-critical border border-critical/20 px-2 py-0.5 rounded-full text-[10px] uppercase">Nouvelle</span></td>
+                            <td class="p-3 flex items-center gap-1"><div class="w-4 h-4 bg-primary text-on-primary rounded-full flex items-center justify-center text-[8px]">A</div> Admin</td>
+                            <td class="p-3 text-right">
+                                <button onclick="openPanel('GG-2026-00457')" class="bg-white border border-gray-200 hover:bg-white-variant px-3 py-1 rounded text-text-main transition-colors shadow-sm">Voir</button>
+                            </td>
+                        </tr>
+
+                        <!-- Row 3 (Medium) -->
+                        <tr class="border-b border-gray-200/50 hover:bg-white-variant/30 transition-colors">
+                            <td class="p-3 font-mono text-text-muted">GG-2026-00455</td>
+                            <td class="p-3"><span class="flex items-center gap-1 text-medium opacity-80"><span class="material-symbols-outlined text-[14px]">info</span> Moyenne</span></td>
+                            <td class="p-3">Feu</td>
+                            <td class="p-3">Réserve de Taï</td>
+                            <td class="p-3">02 Sept 2026</td>
+                            <td class="p-3">-</td>
+                            <td class="p-3 text-center text-primary font-bold">76%</td>
+                            <td class="p-3"><span class="bg-white/10 text-secondary border border-secondary/20 px-2 py-0.5 rounded-full text-[10px] uppercase">Confirmée</span></td>
+                            <td class="p-3 flex items-center gap-1"><div class="w-4 h-4 bg-tertiary text-on-tertiary rounded-full flex items-center justify-center text-[8px]">K</div> K. Raoul</td>
+                            <td class="p-3 text-right">
+                                <button onclick="openPanel('GG-2026-00455')" class="bg-white border border-gray-200 hover:bg-white-variant px-3 py-1 rounded text-text-main transition-colors shadow-sm">Voir</button>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="bg-gray-50 px-4 py-2 border-t border-gray-200 flex items-center justify-between text-xs text-text-muted">
+                <span>Affichage 1 à 3 sur 245 alertes</span>
+                <div class="flex items-center gap-2">
+                    <button class="p-1 hover:text-text-main disabled:opacity-50" disabled><span class="material-symbols-outlined text-[16px]">chevron_left</span></button>
+                    <span class="font-bold">1</span>
+                    <button class="p-1 hover:text-text-main"><span class="material-symbols-outlined text-[16px]">chevron_right</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT SLIDE-OUT PANEL (450px) -->
+    <div id="alert-detail-panel" class="absolute right-0 top-0 h-full w-[450px] bg-white border-l border-gray-200 shadow-[-10px_0_30px_rgba(0,0,0,0.1)] z-20 flex flex-col transform translate-x-full transition-transform duration-300">
+        
+        <!-- Panel Header -->
+        <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between bg-white">
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="font-mono text-xs text-text-muted" id="panel-alert-id">GG-2026-00458</span>
+                    <span class="bg-critical/10 text-critical px-1.5 py-0.5 rounded text-[9px] font-bold uppercase">Priorité Critique</span>
+                </div>
+                <h2 class="text-xl font-bold text-text-main leading-tight">Déforestation détectée</h2>
+            </div>
+            <button onclick="closePanel()" class="w-8 h-8 rounded-full hover:bg-white-variant flex items-center justify-center text-text-muted transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <!-- Panel Scrollable Content -->
+        <div class="flex-1 overflow-y-auto">
+            
+            <!-- Section 1 & 2: Localisation et Infos -->
+            <div class="p-5 border-b border-gray-200">
+                <div class="flex gap-4">
+                    <!-- Map Thumbnail -->
+                    <div class="w-32 h-24 bg-white-variant rounded-md overflow-hidden relative border border-gray-200 shrink-0">
+                        <!-- Static fake map thumbnail for UI -->
+                        <div class="absolute inset-0 bg-[#e0e0e0] flex items-center justify-center">
+                            <span class="material-symbols-outlined text-text-muted text-4xl opacity-50">map</span>
+                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-critical rounded-full shadow-lg border-2 border-white"></div>
+                        </div>
+                        <button class="absolute bottom-1 right-1 bg-white/90 p-1 rounded hover:bg-white text-text-main shadow-sm text-[10px] flex items-center font-bold">
+                            <span class="material-symbols-outlined text-[12px] mr-0.5">open_in_new</span> Carte
+                        </button>
+                    </div>
+                    <!-- Details -->
+                    <div class="text-xs text-text-muted space-y-1.5">
+                        <p><strong class="text-text-main">Zone:</strong> Forêt classée Banco</p>
+                        <p><strong class="text-text-main">Coordonnées:</strong> 5.3242 N, -4.0681 W</p>
+                        <p><strong class="text-text-main">Date détection:</strong> Aujourd'hui 08:45</p>
+                        <p><strong class="text-text-main">Source:</strong> Sentinel-2 L2A</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3 & 4: Analyse IA & Confiance -->
+            <div class="p-5 border-b border-gray-200 bg-white-variant/20">
+                <h3 class="text-xs font-bold text-text-main uppercase tracking-wider mb-3">Pourquoi cette alerte ?</h3>
+                <div class="flex justify-between items-start mb-4">
+                    <ul class="space-y-2 text-xs text-text-main">
+                        <li class="flex items-center gap-2"><span class="material-symbols-outlined text-critical text-[14px]">trending_down</span> Variation NDVI : <strong class="text-critical">-18%</strong></li>
+                        <li class="flex items-center gap-2"><span class="material-symbols-outlined text-critical text-[14px]">grid_on</span> Pixels modifiés : <strong>98 450</strong></li>
+                        <li class="flex items-center gap-2"><span class="material-symbols-outlined text-critical text-[14px]">square_foot</span> Surface affectée : <strong>12.4 ha</strong></li>
+                    </ul>
+                    <div class="text-center bg-white border border-gray-200 rounded p-2 min-w-[90px] shadow-sm">
+                        <span class="block text-[10px] text-text-muted uppercase">Confiance globale</span>
+                        <span class="block text-2xl font-black text-primary my-0.5">94%</span>
+                        <div class="text-[9px] text-text-muted text-left mt-1 border-t border-gray-200 pt-1">
+                            <div class="flex justify-between"><span>Image:</span> <span class="font-bold text-text-main">96%</span></div>
+                            <div class="flex justify-between"><span>Spectral:</span> <span class="font-bold text-text-main">92%</span></div>
+                            <div class="flex justify-between"><span>Historique:</span> <span class="font-bold text-text-main">89%</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 11: Transparence IA (Disclaimer) -->
+                <div class="bg-primary/5 border border-primary/20 rounded p-2.5 text-[10px] text-text-main flex gap-2">
+                    <span class="material-symbols-outlined text-primary text-[16px] shrink-0">robot_2</span>
+                    <div>
+                        <p><strong>Modèle:</strong> GeoGuard Vision V2.1.0 | <strong>Date:</strong> 04/09/2026</p>
+                        <p class="mt-0.5 text-text-muted italic">Cette alerte est une détection automatique nécessitant validation humaine avant décision finale.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 7: Comparaison Visuelle -->
+            <div class="p-5 border-b border-gray-200">
+                <h3 class="text-xs font-bold text-text-main uppercase tracking-wider mb-2">Aperçu Avant / Après</h3>
+                <div class="relative w-full h-40 bg-gray-50 rounded-[10px] overflow-hidden border border-gray-200">
+                    <img src="/data/processed/historical_vis.png" class="absolute inset-0 w-full h-full object-cover" alt="Ancienne image">
+                    <div class="absolute inset-0 w-1/2 overflow-hidden border-r-2 border-white shadow-[2px_0_5px_rgba(0,0,0,0.5)]">
+                        <img src="/data/processed/anomaly_map.png" class="absolute inset-0 w-[408px] max-w-none h-full object-cover" alt="Nouvelle image">
+                    </div>
+                    <div class="absolute top-2 left-2 bg-black/60 text-white text-[9px] px-1.5 py-0.5 rounded font-bold">RÉCENT (RÉFÉRENCE)</div>
+                    <div class="absolute top-2 right-2 bg-black/60 text-white text-[9px] px-1.5 py-0.5 rounded font-bold">HISTORIQUE</div>
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-lg">
+                        <span class="material-symbols-outlined text-[14px] text-surface-variant">code</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 8: Workflow Validation -->
+            <div class="p-5 border-b border-gray-200">
+                <h3 class="text-xs font-bold text-text-main uppercase tracking-wider mb-4">Suivi du traitement</h3>
+                <div class="relative pl-3 border-l-2 border-gray-200 space-y-4 text-xs">
+                    <!-- Step 1 -->
+                    <div class="relative">
+                        <div class="absolute -left-[17px] top-0.5 w-3 h-3 rounded-full bg-white ring-4 ring-surface-container-lowest"></div>
+                        <div class="flex justify-between items-start">
+                            <span class="font-bold text-text-main flex items-center gap-1"><span class="material-symbols-outlined text-[12px] text-secondary">robot_2</span> Détectée automatiquement</span>
+                            <span class="text-[10px] text-text-muted">08:45</span>
+                        </div>
+                    </div>
+                    <!-- Step 2 -->
+                    <div class="relative">
+                        <div class="absolute -left-[17px] top-0.5 w-3 h-3 rounded-full bg-medium ring-4 ring-surface-container-lowest"></div>
+                        <div class="flex justify-between items-start">
+                            <span class="font-bold text-medium">En revue humaine</span>
+                            <span class="text-[10px] text-text-muted">En cours</span>
+                        </div>
+                    </div>
+                    <!-- Step 3 (Pending) -->
+                    <div class="relative opacity-40">
+                        <div class="absolute -left-[17px] top-0.5 w-3 h-3 rounded-full bg-outline ring-4 ring-surface-container-lowest"></div>
+                        <span class="font-bold text-text-muted">Confirmée</span>
+                    </div>
+                    <!-- Step 4 (Pending) -->
+                    <div class="relative opacity-40">
+                        <div class="absolute -left-[17px] top-0.5 w-3 h-3 rounded-full bg-outline ring-4 ring-surface-container-lowest"></div>
+                        <span class="font-bold text-text-muted">Mission créée</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 10: Journal (Commentaires) -->
+            <div class="p-5">
+                <h3 class="text-xs font-bold text-text-main uppercase tracking-wider mb-3">Journal de suivi</h3>
+                <div class="space-y-3 mb-4">
+                    <!-- Comment item -->
+                    <div class="bg-white-variant/30 rounded p-3 text-xs border border-gray-200/50">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="font-bold text-primary">Système</span>
+                            <span class="text-[9px] text-text-muted">04/09/2026 08:45</span>
+                        </div>
+                        <p class="text-text-main">Alerte générée automatiquement suite au scan matinal.</p>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" placeholder="Ajouter un commentaire..." class="flex-1 bg-white border border-gray-200 rounded px-2 py-1.5 text-xs outline-none focus:border-primary">
+                    <button class="bg-white border border-gray-200 hover:bg-white-variant rounded px-2 text-text-muted"><span class="material-symbols-outlined text-[16px]">attach_file</span></button>
+                    <button class="bg-primary text-on-primary rounded px-3 text-xs font-bold hover:bg-primary/90 transition-colors">Envoyer</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Section 9: Actions (Footer) -->
+        <div class="p-4 border-t border-gray-200 bg-white flex flex-col gap-2 shrink-0">
+            <button class="w-full bg-primary hover:bg-on-primary-fixed-variant text-on-primary py-2.5 rounded-[10px] font-bold text-sm shadow-sm transition-colors flex justify-center items-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">check_circle</span> Valider l'alerte
+            </button>
+            <div class="flex gap-2">
+                <button class="flex-1 bg-white border border-gray-200 hover:bg-white-variant text-text-main py-1.5 rounded text-xs font-medium transition-colors">Créer mission</button>
+                <button class="flex-1 bg-white border border-gray-200 hover:bg-white-variant text-text-main py-1.5 rounded text-xs font-medium transition-colors">Rapport</button>
+                <button class="flex-1 bg-white border border-gray-200 hover:bg-white-variant text-critical border-critical/30 py-1.5 rounded text-xs font-medium transition-colors">Rejeter</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Overlay for closing panel when clicking outside -->
+    <div id="panel-overlay" onclick="closePanel()" class="absolute inset-0 bg-black/20 z-10 hidden opacity-0 transition-opacity duration-300"></div>
+
+</div>
+
+<script>
+    const panel = document.getElementById('alert-detail-panel');
+    const overlay = document.getElementById('panel-overlay');
+    const idDisplay = document.getElementById('panel-alert-id');
+
+    function openPanel(alertId) {
+        if(alertId) {
+            idDisplay.innerText = alertId;
+        }
+        overlay.classList.remove('hidden');
+        // small delay to allow display block to apply before transition
+        setTimeout(() => {
+            overlay.classList.remove('opacity-0');
+            panel.classList.remove('translate-x-full');
+        }, 10);
+    }
+
+    function closePanel() {
+        panel.classList.add('translate-x-full');
+        overlay.classList.add('opacity-0');
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+        }, 300);
+    }
+</script>
+{% endblock %}

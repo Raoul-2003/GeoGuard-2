@@ -1,0 +1,292 @@
+{% set active_page = "environnement" %}
+{% extends "base.html" %}
+
+{% block topbar %}
+<header class="bg-white border-b border-gray-200 hidden md:flex flex-col md:flex-row md:justify-between md:items-center gap-4 px-6 h-16 w-full sticky top-0 z-20">
+    <div class="flex flex-col">
+        <h1 class="text-lg font-bold text-text-main leading-tight flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">eco</span> Observatoire environnemental
+        </h1>
+        <p class="text-[11px] text-text-muted font-medium">Analyse scientifique de la santé des territoires</p>
+    </div>
+    
+    <div class="flex items-center gap-3">
+        <button class="bg-white hover:bg-gray-50 text-text-main border border-gray-200 rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">add</span> Nouvelle analyse
+        </button>
+        <button class="bg-white hover:bg-gray-50 text-text-main border border-gray-200 rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">compare_arrows</span> Comparer période
+        </button>
+        <button class="bg-primary hover:bg-sidebar text-white rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">download</span> Exporter rapport
+        </button>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+
+<div class="p-6 w-full mx-auto space-y-6 flex flex-col h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar bg-slate-50">
+
+    <!-- KPI ENVIRONNEMENTAUX (EXACTEMENT 6 CARTES) -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 shrink-0">
+        <!-- KPI 1 : Santé globale -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm relative overflow-hidden">
+            <div class="absolute right-0 top-0 w-10 h-10 bg-[#16A34A]/10 rounded-bl-full"></div>
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Santé globale territoire</h3>
+            <div class="text-3xl font-black text-primary leading-none flex items-end gap-1">82<span class="text-xs text-text-muted mb-1">/100</span></div>
+        </div>
+        <!-- KPI 2 : Évolution Végétation -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Évolution végétation</h3>
+            <div class="text-3xl font-black text-error leading-none flex items-center gap-1">
+                <span class="material-symbols-outlined text-[20px]">trending_down</span> -5 %
+            </div>
+            <div class="text-[9px] text-text-muted mt-1 font-bold">Sur 12 mois (NDVI)</div>
+        </div>
+        <!-- KPI 3 : Zones en dégradation -->
+        <div class="bg-error/5 border border-error/20 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-error uppercase tracking-wider mb-2">Zones en dégradation</h3>
+            <div class="text-3xl font-black text-error leading-none">48</div>
+        </div>
+        <!-- KPI 4 : Stress hydrique -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Stress hydrique</h3>
+            <div class="text-2xl font-black text-[#EA580C] leading-tight">Moyen</div>
+            <div class="text-[9px] text-text-muted mt-1 font-bold">Indice NDWI global</div>
+        </div>
+        <!-- KPI 5 : Risque Incendie -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Risque incendie</h3>
+            <div class="text-2xl font-black text-error leading-tight flex items-center gap-1">
+                <span class="material-symbols-outlined text-[18px]">local_fire_department</span> Élevé
+            </div>
+            <div class="text-[9px] text-text-muted mt-1 font-bold">Indice NBR</div>
+        </div>
+        <!-- KPI 6 : Dernière analyse -->
+        <div class="bg-primary/5 border border-primary/20 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-primary uppercase tracking-wider mb-2">Dernière analyse IA</h3>
+            <div class="text-lg font-black text-primary leading-tight mt-2">Aujourd'hui 08:00</div>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <div class="flex flex-col lg:flex-row gap-6 flex-1 min-h-[400px]">
+        
+        <!-- GAUCHE : SCORE & 5 ZONES PRIORITAIRES (40%) -->
+        <div class="w-full lg:w-[40%] flex flex-col gap-6">
+            
+            <!-- Global Eco Health Score -->
+            <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col">
+                <h2 class="text-sm font-bold text-text-main uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-[18px]">health_and_safety</span> GeoGuard Eco Health Score
+                </h2>
+                <div class="flex items-center gap-6">
+                    <div class="relative w-24 h-24 flex items-center justify-center shrink-0">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="#f1f5f9" stroke-width="10"></circle>
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="#16A34A" stroke-width="10" stroke-dasharray="282.7" stroke-dashoffset="50.8"></circle>
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span class="text-3xl font-black text-primary leading-none">82</span>
+                            <span class="text-[9px] text-text-muted font-bold">/100</span>
+                        </div>
+                    </div>
+                    <div class="flex-1 space-y-2">
+                        <div class="flex justify-between items-center text-[10px] font-bold">
+                            <span class="text-text-muted">Végétation (30%)</span><span class="text-error">Baisse</span>
+                        </div>
+                        <div class="w-full h-1 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-error w-[40%]"></div></div>
+                        
+                        <div class="flex justify-between items-center text-[10px] font-bold pt-1">
+                            <span class="text-text-muted">Eau (20%)</span><span class="text-primary">Stable</span>
+                        </div>
+                        <div class="w-full h-1 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-primary w-[80%]"></div></div>
+                        
+                        <div class="flex justify-between items-center text-[10px] font-bold pt-1">
+                            <span class="text-text-muted">Biodiversité (20%)</span><span class="text-[#EA580C]">Menacée</span>
+                        </div>
+                        <div class="w-full h-1 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-[#EA580C] w-[60%]"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5 Zones Prioritaires (Anti-surcharge) -->
+            <div class="bg-white border border-gray-200 rounded-2xl shadow-sm flex-1 flex flex-col overflow-hidden">
+                <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                    <h2 class="text-sm font-bold text-text-main uppercase tracking-wider flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">priority_high</span> 5 Zones Prioritaires
+                    </h2>
+                    <span class="text-[9px] font-bold text-text-muted">Nécessitant attention</span>
+                </div>
+                <div class="overflow-y-auto custom-scrollbar flex-1 p-2">
+                    <div class="space-y-1">
+                        <!-- Zone 1 -->
+                        <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg border border-transparent transition-colors group cursor-pointer" onclick="window.location.href='/territory-profile'">
+                            <div>
+                                <h4 class="text-xs font-bold text-error">Parc National du Banco</h4>
+                                <p class="text-[10px] text-text-muted">Baisse massive NDVI</p>
+                            </div>
+                            <button class="bg-error/10 text-error px-3 py-1 rounded text-[10px] font-bold group-hover:bg-error group-hover:text-white transition-colors">Dossier</button>
+                        </div>
+                        <!-- Zone 2 -->
+                        <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg border border-transparent transition-colors group cursor-pointer" onclick="window.location.href='/territory-profile'">
+                            <div>
+                                <h4 class="text-xs font-bold text-[#EA580C]">Réserve de Taï (Sect. B)</h4>
+                                <p class="text-[10px] text-text-muted">Stress hydrique (NDWI)</p>
+                            </div>
+                            <button class="bg-[#EA580C]/10 text-[#EA580C] px-3 py-1 rounded text-[10px] font-bold group-hover:bg-[#EA580C] group-hover:text-white transition-colors">Dossier</button>
+                        </div>
+                        <!-- Zone 3 -->
+                        <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg border border-transparent transition-colors group cursor-pointer" onclick="window.location.href='/territory-profile'">
+                            <div>
+                                <h4 class="text-xs font-bold text-[#F59E0B]">Forêt d'Azagny</h4>
+                                <p class="text-[10px] text-text-muted">Risque incendie élevé (NBR)</p>
+                            </div>
+                            <button class="bg-gray-100 text-text-main px-3 py-1 rounded text-[10px] font-bold group-hover:bg-gray-200 transition-colors">Dossier</button>
+                        </div>
+                        <!-- Zone 4 -->
+                        <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg border border-transparent transition-colors group cursor-pointer" onclick="window.location.href='/territory-profile'">
+                            <div>
+                                <h4 class="text-xs font-bold text-text-main">Périphérie Yamoussoukro</h4>
+                                <p class="text-[10px] text-text-muted">Expansion urbaine vs Végétation</p>
+                            </div>
+                            <button class="bg-gray-100 text-text-main px-3 py-1 rounded text-[10px] font-bold group-hover:bg-gray-200 transition-colors">Dossier</button>
+                        </div>
+                        <!-- Zone 5 -->
+                        <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg border border-transparent transition-colors group cursor-pointer" onclick="window.location.href='/territory-profile'">
+                            <div>
+                                <h4 class="text-xs font-bold text-text-main">Bassin Versant Comoé</h4>
+                                <p class="text-[10px] text-text-muted">Surveillance EVI (Zones humides)</p>
+                            </div>
+                            <button class="bg-gray-100 text-text-main px-3 py-1 rounded text-[10px] font-bold group-hover:bg-gray-200 transition-colors">Dossier</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DROITE : CARTE ENVIRONNEMENTALE (60%) -->
+        <div class="w-full lg:w-[60%] bg-white border border-gray-200 rounded-2xl shadow-sm relative overflow-hidden flex flex-col">
+            <div class="absolute top-4 left-4 z-10 bg-white/95 backdrop-blur border border-gray-200 p-2 rounded-lg shadow-sm flex flex-col gap-2">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-[18px]">layers</span>
+                    <h2 class="text-xs font-bold text-text-main">Calques Environnementaux</h2>
+                </div>
+                <div class="flex flex-col gap-1 text-[10px] font-bold text-text-muted">
+                    <label class="flex items-center gap-2 cursor-pointer hover:text-text-main"><input type="radio" name="layer" checked class="text-primary"> Santé Globale (Eco Score)</label>
+                    <label class="flex items-center gap-2 cursor-pointer hover:text-text-main"><input type="radio" name="layer" class="text-primary"> Végétation (NDVI)</label>
+                    <label class="flex items-center gap-2 cursor-pointer hover:text-text-main"><input type="radio" name="layer" class="text-primary"> Eau & Humidité (NDWI)</label>
+                    <label class="flex items-center gap-2 cursor-pointer hover:text-text-main"><input type="radio" name="layer" class="text-primary"> Risque Incendie (NBR)</label>
+                </div>
+            </div>
+            
+            <div id="eco-map" class="w-full h-full bg-slate-900"></div>
+            
+            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 bg-white/90 backdrop-blur border border-gray-200 px-4 py-2 rounded-full shadow-sm text-[10px] font-bold flex items-center gap-4">
+                <span>Dégradation</span>
+                <div class="w-32 h-2 rounded-full bg-gradient-to-r from-error via-yellow-400 to-primary"></div>
+                <span>Sain</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- TENDANCES IA (ENVIRONMENTAL TREND AGENT) -->
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 shrink-0 mb-6">
+        <h2 class="text-sm font-bold text-text-main uppercase tracking-wider mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-[18px]">auto_awesome</span> Environmental Trend Agent
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Tendance 1 -->
+            <div class="bg-error/5 border border-error/20 p-4 rounded-xl relative">
+                <span class="material-symbols-outlined absolute top-2 right-2 text-error/30 text-[24px]">psychology</span>
+                <h4 class="text-xs font-bold text-error mb-2">Tendance Négative Majeure</h4>
+                <p class="text-[11px] text-text-main leading-relaxed">
+                    Le <strong>Parc National du Banco</strong> présente une tendance négative depuis 18 mois consécutifs. Une corrélation forte (94%) est établie entre la baisse du NDVI et l'expansion urbaine péri-forestière.
+                </p>
+            </div>
+            
+            <!-- Tendance 2 -->
+            <div class="bg-gray-50 border border-gray-200 p-4 rounded-xl relative">
+                <span class="material-symbols-outlined absolute top-2 right-2 text-gray-300 text-[24px]">psychology</span>
+                <h4 class="text-xs font-bold text-text-main mb-2">Stress Hydrique Saisonnier</h4>
+                <p class="text-[11px] text-text-muted leading-relaxed">
+                    Les indicateurs NDWI du bassin nord montrent une baisse anticipée par rapport aux normales saisonnières. Risque de sécheresse précoce modéré d'ici 3 mois.
+                </p>
+            </div>
+            
+            <!-- Tendance 3 -->
+            <div class="bg-primary/5 border border-primary/20 p-4 rounded-xl relative">
+                <span class="material-symbols-outlined absolute top-2 right-2 text-primary/30 text-[24px]">psychology</span>
+                <h4 class="text-xs font-bold text-primary mb-2">Régénération Confirmée</h4>
+                <p class="text-[11px] text-text-main leading-relaxed">
+                    La zone de reboisement d'Azagny affiche une augmentation constante de l'indice SAVI depuis 2 ans, confirmant le succès des opérations de restauration écologique.
+                </p>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<script>
+    // -------------------------------------------------------------
+    // MAPBOX GL JS INIT (Carte Environnementale)
+    // -------------------------------------------------------------
+    mapboxgl.accessToken = 'VOTRE_TOKEN_MAPBOX'; // Demo Token
+    const map = new mapboxgl.Map({
+        container: 'eco-map',
+        style: 'mapbox://styles/mapbox/satellite-streets-v12', 
+        center: [-4.0244, 5.3453], // Côte d'Ivoire
+        zoom: 7,
+        attributionControl: false
+    });
+
+    map.on('load', () => {
+        // Ajouter un calque GeoJSON fictif pour la "Santé Globale" (Heatmap/Fill)
+        map.addSource('eco-health-data', {
+            'type': 'geojson',
+            'data': {
+                'type': 'FeatureCollection',
+                'features': [
+                    // Zone dégradée
+                    {
+                        'type': 'Feature',
+                        'properties': { 'score': 45 },
+                        'geometry': {
+                            'type': 'Polygon',
+                            'coordinates': [[[-4.06, 5.38], [-4.03, 5.38], [-4.02, 5.42], [-4.06, 5.42], [-4.06, 5.38]]]
+                        }
+                    },
+                    // Zone saine
+                    {
+                        'type': 'Feature',
+                        'properties': { 'score': 90 },
+                        'geometry': {
+                            'type': 'Polygon',
+                            'coordinates': [[[-4.30, 5.50], [-4.25, 5.50], [-4.25, 5.55], [-4.30, 5.55], [-4.30, 5.50]]]
+                        }
+                    }
+                ]
+            }
+        });
+
+        map.addLayer({
+            'id': 'eco-health-fill',
+            'type': 'fill',
+            'source': 'eco-health-data',
+            'paint': {
+                'fill-color': [
+                    'interpolate', ['linear'], ['get', 'score'],
+                    0, '#dc2626',   // Rouge (Dégradé)
+                    50, '#facc15',  // Jaune
+                    100, '#16a34a'  // Vert (Sain)
+                ],
+                'fill-opacity': 0.6
+            }
+        });
+    });
+</script>
+{% endblock %}

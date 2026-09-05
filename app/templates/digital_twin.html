@@ -1,0 +1,302 @@
+{% set active_page = "digital_twin" %}
+{% extends "base.html" %}
+
+{% block topbar %}
+<header class="bg-white border-b border-gray-200 hidden md:flex flex-col md:flex-row md:justify-between md:items-center gap-4 px-6 h-16 w-full sticky top-0 z-10">
+    <div class="flex flex-col">
+        <h1 class="text-lg font-bold text-text-main leading-tight flex items-center gap-2"><span class="material-symbols-outlined text-primary">public</span> Jumeau Numérique Territorial</h1>
+        <p class="text-[11px] text-text-muted">Simulation intelligente de l'évolution des territoires</p>
+    </div>
+    
+    <!-- Territory Selector -->
+    <div class="bg-white-variant/50 border border-gray-200 rounded-md flex items-center px-3 h-9 w-[300px] focus-within:ring-1 focus-within:ring-primary focus-within:border-primary transition-all">
+        <span class="material-symbols-outlined text-text-muted mr-2 text-[18px]">location_on</span>
+        <select class="bg-transparent border-none p-0 flex-1 text-sm font-medium text-text-main focus:ring-0 outline-none">
+            <option value="tai">Parc National de Taï</option>
+            <option value="banco">Forêt du Banco</option>
+            <option value="abidjan">District d'Abidjan</option>
+        </select>
+    </div>
+
+    <div class="flex items-center gap-3">
+        <button class="bg-gray-50 hover:bg-white-variant text-text-main border border-gray-200 rounded-[10px] px-3 py-1.5 text-xs font-medium flex items-center gap-1 transition-colors">
+            <span class="material-symbols-outlined text-[16px]">sync</span> Actualiser
+        </button>
+        <button class="bg-white hover:bg-white-variant text-primary border border-gray-200 rounded-[10px] px-3 py-1.5 text-xs font-medium flex items-center gap-1 transition-colors" onclick="document.getElementById('scenario-panel').classList.toggle('hidden')">
+            <span class="material-symbols-outlined text-[16px]">science</span> Scénarios
+        </button>
+        <button class="bg-primary hover:bg-sidebar text-white rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">download</span> Exporter
+        </button>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<!-- Include MapLibre GL JS -->
+<link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+<script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+
+<div class="flex flex-col h-[calc(100vh-64px)] w-full overflow-hidden bg-white-variant relative">
+
+    <!-- TOP KPI BAR -->
+    <div class="w-full bg-white border-b border-gray-200 px-6 py-3 flex gap-4 overflow-x-auto shrink-0 z-10 shadow-sm">
+        <div class="flex flex-col border-r border-gray-200 pr-4 min-w-[150px]">
+            <span class="text-[10px] font-bold text-text-muted uppercase">État Environnemental</span>
+            <div class="flex items-end gap-1 mt-1"><span class="text-2xl font-black text-primary leading-none">82</span><span class="text-xs text-text-muted">/100</span></div>
+        </div>
+        <div class="flex flex-col border-r border-gray-200 pr-4 min-w-[150px]">
+            <span class="text-[10px] font-bold text-text-muted uppercase">Couverture Végétale</span>
+            <div class="flex items-end gap-1 mt-1"><span class="text-2xl font-black text-text-main leading-none">84%</span></div>
+        </div>
+        <div class="flex flex-col border-r border-gray-200 pr-4 min-w-[150px]">
+            <span class="text-[10px] font-bold text-text-muted uppercase">Évolution (5 ans)</span>
+            <div class="flex items-center gap-1 mt-1 text-error"><span class="material-symbols-outlined text-[16px]">trending_down</span><span class="text-2xl font-black leading-none">-8%</span></div>
+        </div>
+        <div class="flex flex-col border-r border-gray-200 pr-4 min-w-[150px]">
+            <span class="text-[10px] font-bold text-text-muted uppercase">Risque Futur</span>
+            <div class="flex items-end gap-1 mt-1"><span class="text-2xl font-black text-[#EA580C] leading-none">72</span><span class="text-xs text-text-muted">/100</span></div>
+        </div>
+        <div class="flex flex-col border-r border-gray-200 pr-4 min-w-[150px]">
+            <span class="text-[10px] font-bold text-text-muted uppercase">Pression Humaine</span>
+            <div class="flex items-end gap-1 mt-1"><span class="text-2xl font-black text-[#F59E0B] leading-none">Moyenne</span></div>
+        </div>
+        <div class="flex flex-col min-w-[150px]">
+            <span class="text-[10px] font-bold text-text-muted uppercase">Synchro. Modèle</span>
+            <div class="flex items-center gap-1 mt-1 text-primary"><span class="material-symbols-outlined text-[16px]">check_circle</span><span class="text-sm font-bold leading-none">Aujourd'hui 08:45</span></div>
+        </div>
+    </div>
+
+    <!-- MAIN 3D AREA -->
+    <div class="flex-1 relative w-full h-full">
+        <!-- 3D Map Container -->
+        <div id="map3d" class="absolute inset-0 w-full h-full bg-slate-900"></div>
+
+        <!-- 3D Layer Controls -->
+        <div class="absolute top-4 left-4 z-10 bg-white/95 backdrop-blur border border-gray-200 rounded-[10px] shadow-lg p-3 w-48">
+            <h4 class="text-[10px] font-bold text-text-main uppercase mb-2">Couches du Jumeau</h4>
+            <div class="space-y-2">
+                <label class="flex items-center cursor-pointer"><input type="checkbox" checked class="text-primary rounded mr-2" id="layer-terrain"><span class="text-xs text-text-main">Relief 3D (Terrain)</span></label>
+                <label class="flex items-center cursor-pointer"><input type="checkbox" checked class="text-primary rounded mr-2" id="layer-sat"><span class="text-xs text-text-main">Satellite HR</span></label>
+                <label class="flex items-center cursor-pointer"><input type="checkbox" checked class="text-error rounded mr-2"><span class="text-xs font-bold text-error">Zones de risque</span></label>
+                <label class="flex items-center cursor-pointer"><input type="checkbox" class="text-info rounded mr-2"><span class="text-xs text-text-main">Infrastructures</span></label>
+            </div>
+        </div>
+
+        <!-- SCENARIO LAB (Hidden by default, toggled via button) -->
+        <div id="scenario-panel" class="absolute top-4 right-4 z-20 w-[400px] bg-white/95 backdrop-blur border border-gray-200 rounded-2xl shadow-xl flex flex-col max-h-[calc(100%-32px)] overflow-hidden transition-all hidden">
+            
+            <div class="bg-sidebar p-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-white">science</span>
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Laboratoire : Scénarios</h3>
+                </div>
+                <button onclick="document.getElementById('scenario-panel').classList.add('hidden')" class="text-white/70 hover:text-white"><span class="material-symbols-outlined">close</span></button>
+            </div>
+
+            <div class="overflow-y-auto p-4 custom-scrollbar">
+                <p class="text-xs text-text-muted mb-4">Que se passe-t-il si nous modifions ces paramètres d'ici 2030 ?</p>
+
+                <!-- Scénario 1 -->
+                <div class="mb-6 p-3 bg-white border border-gray-200 rounded-xl hover:border-primary transition-colors cursor-pointer" onclick="runScenario('deforest')">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-xs font-bold text-error">1. Déforestation Accélérée</h4>
+                        <span class="material-symbols-outlined text-[16px] text-text-muted">play_circle</span>
+                    </div>
+                    <div class="text-[10px] text-text-muted mb-2">Paramètre : +20% activité humaine et agricole.</div>
+                    <div class="bg-error/10 text-error text-[10px] font-bold p-1.5 rounded">Résultat IA : Perte estimée de 350 ha/an</div>
+                </div>
+
+                <!-- Scénario 2 -->
+                <div class="mb-6 p-3 bg-white border border-gray-200 rounded-xl hover:border-primary transition-colors cursor-pointer" onclick="runScenario('protect')">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-xs font-bold text-primary">2. Protection Renforcée</h4>
+                        <span class="material-symbols-outlined text-[16px] text-text-muted">play_circle</span>
+                    </div>
+                    <div class="text-[10px] text-text-muted mb-2">Paramètre : Création d'une zone tampon de 5km.</div>
+                    <div class="bg-primary/10 text-primary text-[10px] font-bold p-1.5 rounded">Résultat IA : Réduction du risque de -35%</div>
+                </div>
+
+                <!-- Strategic Advisor -->
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <h4 class="text-xs font-bold text-text-main mb-3 flex items-center gap-1"><span class="material-symbols-outlined text-primary text-[16px]">assistant</span> GeoGuard Strategic Advisor</h4>
+                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                        <p class="text-[10px] text-slate-600 italic">"L'analyse multicritère montre que l'extension urbaine à l'est menace directement la biodiversité (Impact: Fort). La stratégie optimale est l'application du Scénario 2."</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4 border-t border-gray-200 bg-gray-50">
+                <button class="w-full bg-sidebar hover:bg-sidebar/90 text-white py-2 rounded-[10px] text-xs font-bold transition-colors flex items-center justify-center gap-2 shadow-sm">
+                    <span class="material-symbols-outlined text-[16px]">description</span> Générer Rapport Stratégique
+                </button>
+            </div>
+        </div>
+
+        <!-- Historical Timeline (Bottom) -->
+        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 w-[600px] bg-black/80 backdrop-blur border border-white/10 rounded-full shadow-2xl p-2 flex items-center gap-4">
+            <button id="play-btn" class="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-primary transition-colors">
+                <span id="play-icon" class="material-symbols-outlined text-[18px]">play_arrow</span>
+            </button>
+            <div class="flex-1 flex flex-col">
+                <div class="flex justify-between text-[9px] font-bold text-white/50 mb-1 px-2 uppercase tracking-wider">
+                    <span>2018 (Stable)</span>
+                    <span>2021 (Fragmenté)</span>
+                    <span class="text-white">2026 (Actuel)</span>
+                    <span class="text-[#EA580C]">2030 (Proj.)</span>
+                    <span class="text-error">2050 (Scénario)</span>
+                </div>
+                <input type="range" id="timeline-slider" min="0" max="4" value="2" class="w-full h-1.5 bg-white/20 rounded-full appearance-none cursor-pointer accent-primary">
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .mapboxgl-ctrl-bottom-left, .mapboxgl-ctrl-bottom-right { display: none !important; }
+</style>
+
+<script>
+    // Configuration MapLibre (No token needed, free satellite tiles)
+    const map = new maplibregl.Map({
+        container: 'map3d',
+        style: {
+            'version': 8,
+            'sources': {
+                'esri-satellite': {
+                    'type': 'raster',
+                    'tiles': [
+                        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+                    ],
+                    'tileSize': 256,
+                    'attribution': 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+                }
+            },
+            'layers': [{
+                'id': 'satellite-layer',
+                'type': 'raster',
+                'source': 'esri-satellite',
+                'minzoom': 0,
+                'maxzoom': 19
+            }]
+        },
+        center: [-7.33, 5.86], // Parc National de Taï approx coordinates
+        zoom: 11,
+        pitch: 60, // Tilt for 3D effect
+        bearing: -20
+    });
+
+    map.on('load', () => {
+
+        // Add a mock "Risk Area" polygon over the forest
+        map.addSource('risk-zone', {
+            'type': 'geojson',
+            'data': {
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'Polygon',
+                    'coordinates': [[
+                        [-7.35, 5.85],
+                        [-7.31, 5.85],
+                        [-7.30, 5.88],
+                        [-7.34, 5.89],
+                        [-7.35, 5.85]
+                    ]]
+                }
+            }
+        });
+        map.addLayer({
+            'id': 'risk-zone-layer',
+            'type': 'fill',
+            'source': 'risk-zone',
+            'paint': {
+                'fill-color': '#DC2626',
+                'fill-opacity': 0.4
+            }
+        });
+    });
+
+    // Toggle logic for 3D Terrain (Disabled as we use flat satellite map)
+    document.getElementById('layer-terrain').addEventListener('change', (e) => {
+        // Optional: Could implement AWS Mapzen terrain here in the future
+    });
+
+    // Simple Scenario Runner Mock
+    function runScenario(type) {
+        if(type === 'deforest') {
+            map.flyTo({ center: [-7.33, 5.86], zoom: 12, pitch: 45, duration: 2000 });
+            map.setPaintProperty('risk-zone-layer', 'fill-color', '#DC2626');
+            map.setPaintProperty('risk-zone-layer', 'fill-opacity', 0.8);
+            document.getElementById('timeline-slider').value = 4; // Move timeline to 2050
+        } else if (type === 'protect') {
+            map.flyTo({ center: [-7.33, 5.86], zoom: 12, pitch: 45, duration: 2000 });
+            map.setPaintProperty('risk-zone-layer', 'fill-color', '#16A34A');
+            map.setPaintProperty('risk-zone-layer', 'fill-opacity', 0.4);
+            document.getElementById('timeline-slider').value = 4; // Move timeline to 2050
+        }
+    }
+
+    // Interactive Timeline Logic
+    const slider = document.getElementById('timeline-slider');
+    
+    function triggerSliderUpdate(val) {
+        slider.value = val;
+        // manually dispatch input event
+        slider.dispatchEvent(new Event('input'));
+    }
+
+    slider.addEventListener('input', (e) => {
+        if (!map.getLayer('risk-zone-layer')) return;
+        const val = parseInt(e.target.value);
+        // 0: 2018, 1: 2021, 2: 2026, 3: 2030, 4: 2050
+        if(val === 0) {
+            map.setPaintProperty('risk-zone-layer', 'fill-opacity', 0.0);
+        } else if(val === 1) {
+            map.setPaintProperty('risk-zone-layer', 'fill-color', '#F59E0B');
+            map.setPaintProperty('risk-zone-layer', 'fill-opacity', 0.2);
+        } else if(val === 2) {
+            map.setPaintProperty('risk-zone-layer', 'fill-color', '#DC2626');
+            map.setPaintProperty('risk-zone-layer', 'fill-opacity', 0.4);
+        } else if(val === 3) {
+            map.setPaintProperty('risk-zone-layer', 'fill-color', '#EA580C');
+            map.setPaintProperty('risk-zone-layer', 'fill-opacity', 0.6);
+            map.flyTo({ zoom: 11.5, pitch: 50, duration: 1000 });
+        } else if(val === 4) {
+            map.setPaintProperty('risk-zone-layer', 'fill-color', '#DC2626');
+            map.setPaintProperty('risk-zone-layer', 'fill-opacity', 0.9);
+            map.flyTo({ zoom: 12, pitch: 60, duration: 1000 });
+        }
+    });
+
+    // Play Button Animation Logic
+    let playInterval = null;
+    document.getElementById('play-btn').addEventListener('click', () => {
+        const icon = document.getElementById('play-icon');
+        if (playInterval) {
+            // Stop playing
+            clearInterval(playInterval);
+            playInterval = null;
+            icon.innerText = 'play_arrow';
+        } else {
+            // Start playing
+            icon.innerText = 'pause';
+            let currentVal = parseInt(slider.value);
+            if (currentVal >= 4) {
+                currentVal = 0; // Restart if at the end
+                triggerSliderUpdate(currentVal);
+            }
+            playInterval = setInterval(() => {
+                currentVal++;
+                if (currentVal > 4) {
+                    clearInterval(playInterval);
+                    playInterval = null;
+                    icon.innerText = 'play_arrow';
+                } else {
+                    triggerSliderUpdate(currentVal);
+                }
+            }, 2500); // Wait 2.5s between timeline jumps so animations can finish
+        }
+    });
+</script>
+{% endblock %}

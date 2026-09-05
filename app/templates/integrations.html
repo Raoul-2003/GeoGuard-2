@@ -1,0 +1,286 @@
+{% set active_page = "integrations" %}
+{% extends "base.html" %}
+
+{% block topbar %}
+<header class="bg-white border-b border-gray-200 hidden md:flex flex-col md:flex-row md:justify-between md:items-center gap-4 px-6 h-16 w-full sticky top-0 z-20">
+    <div class="flex flex-col">
+        <h1 class="text-lg font-bold text-text-main leading-tight flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">hub</span> Centre d'intégration
+        </h1>
+        <p class="text-[11px] text-text-muted font-medium">Connecter GeoGuard aux écosystèmes partenaires</p>
+    </div>
+    
+    <div class="flex items-center gap-3">
+        <button class="bg-primary hover:bg-sidebar text-white rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">vpn_key</span> Créer API Key
+        </button>
+        <button class="bg-white hover:bg-gray-50 text-text-main border border-gray-200 rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">handshake</span> Ajouter partenaire
+        </button>
+        <button class="bg-white hover:bg-gray-50 text-text-main border border-gray-200 rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">menu_book</span> Voir documentation
+        </button>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="p-6 w-full mx-auto space-y-6 flex flex-col h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar bg-slate-50 relative">
+
+    <!-- KPI INTÉGRATION (EXACTEMENT 6 CARTES) -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 shrink-0">
+        <!-- KPI 1 -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Apps connectées</h3>
+            <div class="text-3xl font-black text-text-main leading-none">24</div>
+        </div>
+        <!-- KPI 2 -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Requêtes (Auj.)</h3>
+            <div class="text-3xl font-black text-info leading-none flex items-center gap-1">
+                250<span class="text-lg">K</span>
+            </div>
+        </div>
+        <!-- KPI 3 -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Partenaires actifs</h3>
+            <div class="text-3xl font-black text-text-main leading-none">18</div>
+        </div>
+        <!-- KPI 4 -->
+        <div class="bg-primary/5 border border-primary/20 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-primary uppercase tracking-wider mb-2">Disponibilité API</h3>
+            <div class="text-3xl font-black text-primary leading-none">99,9 %</div>
+        </div>
+        <!-- KPI 5 -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm relative overflow-hidden group cursor-pointer">
+            <div class="absolute right-0 top-0 w-10 h-10 bg-error/10 rounded-bl-full group-hover:scale-110 transition-transform"></div>
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Erreurs API</h3>
+            <div class="text-3xl font-black text-error leading-none">12</div>
+        </div>
+        <!-- KPI 6 -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Données partagées</h3>
+            <div class="text-3xl font-black text-text-main leading-none">5 <span class="text-lg">To</span></div>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <div class="flex flex-col gap-6 flex-1">
+        
+        <!-- HAUT : API GATEWAY HEALTH MONITOR -->
+        <div class="w-full bg-sidebar border border-sidebar rounded-2xl shadow-sm p-6 relative overflow-hidden flex flex-col md:flex-row items-center gap-8 shrink-0">
+            <!-- Décoration -->
+            <div class="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 w-32 h-32 bg-info/10 rounded-full blur-2xl pointer-events-none"></div>
+            
+            <!-- GeoGuard Core -->
+            <div class="flex flex-col items-center gap-2 z-10 w-48">
+                <div class="w-16 h-16 bg-white/10 border border-white/20 rounded-2xl flex items-center justify-center shadow-lg">
+                    <img src="{{ url_for('static', filename='logo_3d.png') }}" class="w-10 h-10 object-contain drop-shadow-md brightness-200">
+                </div>
+                <h3 class="text-sm font-bold text-white tracking-wider uppercase">GeoGuard Core</h3>
+                <div class="bg-[#16A34A]/20 text-[#16A34A] px-2 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 border border-[#16A34A]/30">
+                    <span class="w-1.5 h-1.5 bg-[#16A34A] rounded-full animate-pulse"></span> Online
+                </div>
+            </div>
+
+            <!-- API Gateway -->
+            <div class="flex-1 w-full flex items-center justify-center relative z-10">
+                <div class="absolute h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent w-full top-1/2 -translate-y-1/2"></div>
+                
+                <div class="bg-black/40 backdrop-blur-md border border-white/20 rounded-xl p-4 flex flex-col items-center gap-3 relative shadow-2xl z-20 w-64">
+                    <div class="flex justify-between w-full text-[9px] text-white/50 font-bold uppercase">
+                        <span>OAuth2</span>
+                        <span class="text-primary">HTTPS Secured</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[28px] text-white">router</span>
+                        <h2 class="text-lg font-bold text-white tracking-wider">API GATEWAY</h2>
+                    </div>
+                    <div class="w-full space-y-1.5">
+                        <div class="flex justify-between items-center text-[10px] text-white/70">
+                            <span>Trafic (Req/s)</span> <span class="font-bold text-white">342</span>
+                        </div>
+                        <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                            <div class="bg-info h-full w-[45%]"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- External Partners -->
+            <div class="flex flex-col gap-3 z-10 w-64">
+                <div class="bg-white/5 border border-white/10 p-2.5 rounded-lg flex items-center gap-3">
+                    <div class="w-8 h-8 rounded bg-blue-500/20 text-blue-400 flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">account_balance</span></div>
+                    <div>
+                        <div class="text-xs font-bold text-white">Ministère Env.</div>
+                        <div class="text-[9px] text-white/50">API Cartographique</div>
+                    </div>
+                </div>
+                <div class="bg-white/5 border border-white/10 p-2.5 rounded-lg flex items-center gap-3">
+                    <div class="w-8 h-8 rounded bg-[#16A34A]/20 text-[#16A34A] flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">public</span></div>
+                    <div>
+                        <div class="text-xs font-bold text-white">ONG Conservation</div>
+                        <div class="text-[9px] text-white/50">API Alertes (Webhooks)</div>
+                    </div>
+                </div>
+                <div class="bg-white/5 border border-white/10 p-2.5 rounded-lg flex items-center gap-3">
+                    <div class="w-8 h-8 rounded bg-[#EA580C]/20 text-[#EA580C] flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">sensors</span></div>
+                    <div>
+                        <div class="text-xs font-bold text-white">Capteurs Météo</div>
+                        <div class="text-[9px] text-white/50">Ingestion de données</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-6 flex-1 min-h-[300px]">
+            <!-- BAS GAUCHE : API KEY MANAGER (60%) -->
+            <div class="w-full lg:w-[60%] bg-white border border-gray-200 rounded-2xl shadow-sm flex flex-col overflow-hidden">
+                <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center shrink-0">
+                    <h2 class="text-sm font-bold text-text-main uppercase tracking-wider flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">key</span> API Key Manager
+                    </h2>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-2 top-1.5 text-text-muted text-[16px]">search</span>
+                        <input type="text" placeholder="Rechercher partenaire..." class="pl-8 pr-2 py-1 bg-white border border-gray-200 rounded-lg text-xs w-48 focus:outline-none focus:border-primary">
+                    </div>
+                </div>
+                
+                <div class="overflow-y-auto custom-scrollbar flex-1 p-2">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-[9px] text-text-muted uppercase tracking-wider border-b border-gray-100">
+                                <th class="p-3 font-bold">Partenaire / Organisation</th>
+                                <th class="p-3 font-bold">Permissions (Scopes)</th>
+                                <th class="p-3 font-bold">Expiration</th>
+                                <th class="p-3 font-bold">Statut</th>
+                                <th class="p-3 font-bold text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-[11px] text-text-main divide-y divide-gray-100">
+                            
+                            <!-- Key 1 -->
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="p-3">
+                                    <div class="font-bold text-xs">ONG Conservation Afrique</div>
+                                    <div class="text-[9px] text-text-muted font-mono mt-0.5">pk_live_8f7d9a...</div>
+                                </td>
+                                <td class="p-3">
+                                    <div class="flex gap-1 flex-wrap">
+                                        <span class="bg-gray-100 px-1.5 py-0.5 rounded text-[9px] font-bold text-text-muted">read:alertes</span>
+                                        <span class="bg-gray-100 px-1.5 py-0.5 rounded text-[9px] font-bold text-text-muted">read:cartes</span>
+                                    </div>
+                                </td>
+                                <td class="p-3"><span class="text-text-muted font-bold">12 Mois</span></td>
+                                <td class="p-3">
+                                    <span class="bg-[#16A34A]/10 text-[#16A34A] px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">Actif</span>
+                                </td>
+                                <td class="p-3 text-right">
+                                    <button class="text-text-muted hover:text-text-main p-1"><span class="material-symbols-outlined text-[16px]">more_vert</span></button>
+                                </td>
+                            </tr>
+
+                            <!-- Key 2 -->
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="p-3">
+                                    <div class="font-bold text-xs">Ministère des Eaux et Forêts</div>
+                                    <div class="text-[9px] text-text-muted font-mono mt-0.5">pk_live_4b2c1f...</div>
+                                </td>
+                                <td class="p-3">
+                                    <div class="flex gap-1 flex-wrap">
+                                        <span class="bg-gray-100 px-1.5 py-0.5 rounded text-[9px] font-bold text-text-muted">read:all</span>
+                                        <span class="bg-primary/10 px-1.5 py-0.5 rounded text-[9px] font-bold text-primary">write:rapports</span>
+                                    </div>
+                                </td>
+                                <td class="p-3"><span class="text-text-muted font-bold">Illimité</span></td>
+                                <td class="p-3">
+                                    <span class="bg-[#16A34A]/10 text-[#16A34A] px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">Actif</span>
+                                </td>
+                                <td class="p-3 text-right">
+                                    <button class="text-text-muted hover:text-text-main p-1"><span class="material-symbols-outlined text-[16px]">more_vert</span></button>
+                                </td>
+                            </tr>
+                            
+                            <!-- Key 3 -->
+                            <tr class="hover:bg-gray-50 transition-colors opacity-60">
+                                <td class="p-3">
+                                    <div class="font-bold text-xs">Université Nangui Abrogoua</div>
+                                    <div class="text-[9px] text-text-muted font-mono mt-0.5">pk_test_1a9x8z...</div>
+                                </td>
+                                <td class="p-3">
+                                    <div class="flex gap-1 flex-wrap">
+                                        <span class="bg-gray-100 px-1.5 py-0.5 rounded text-[9px] font-bold text-text-muted">read:analyses</span>
+                                    </div>
+                                </td>
+                                <td class="p-3"><span class="text-error font-bold">Expiré hier</span></td>
+                                <td class="p-3">
+                                    <span class="bg-error/10 text-error px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">Révoqué</span>
+                                </td>
+                                <td class="p-3 text-right">
+                                    <button class="text-text-muted hover:text-text-main p-1"><span class="material-symbols-outlined text-[16px]">refresh</span></button>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- BAS DROITE : WEBHOOKS TEMPS RÉEL (40%) -->
+            <div class="w-full lg:w-[40%] bg-white border border-gray-200 rounded-2xl shadow-sm flex flex-col overflow-hidden">
+                <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center shrink-0">
+                    <h2 class="text-sm font-bold text-text-main uppercase tracking-wider flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">webhook</span> GeoGuard Webhooks
+                    </h2>
+                    <span class="flex items-center gap-1 text-[9px] font-bold text-[#16A34A]"><span class="w-1.5 h-1.5 bg-[#16A34A] rounded-full animate-pulse"></span> Écoute active</span>
+                </div>
+                
+                <div class="p-4 flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-3">
+                    
+                    <!-- Webhook Event 1 -->
+                    <div class="bg-gray-50 border border-gray-100 p-3 rounded-lg flex flex-col gap-2 relative">
+                        <div class="flex justify-between items-start">
+                            <span class="bg-info/10 text-info px-1.5 py-0.5 rounded text-[9px] font-bold uppercase font-mono">alert.created</span>
+                            <span class="text-[9px] text-text-muted font-bold">Il y a 2 min</span>
+                        </div>
+                        <p class="text-xs font-bold text-text-main">Nouvelle alerte déforestation détectée (GG-2458)</p>
+                        <div class="flex items-center gap-1 mt-1 text-[10px] text-text-muted">
+                            <span class="material-symbols-outlined text-[14px]">arrow_forward</span> Livré à : <strong>ONG Conservation Afrique</strong>
+                        </div>
+                        <span class="absolute bottom-2 right-2 material-symbols-outlined text-[#16A34A] text-[16px]">check_circle</span>
+                    </div>
+
+                    <!-- Webhook Event 2 -->
+                    <div class="bg-gray-50 border border-gray-100 p-3 rounded-lg flex flex-col gap-2 relative">
+                        <div class="flex justify-between items-start">
+                            <span class="bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase font-mono">report.generated</span>
+                            <span class="text-[9px] text-text-muted font-bold">Il y a 45 min</span>
+                        </div>
+                        <p class="text-xs font-bold text-text-main">Rapport de conformité écologique finalisé</p>
+                        <div class="flex items-center gap-1 mt-1 text-[10px] text-text-muted">
+                            <span class="material-symbols-outlined text-[14px]">arrow_forward</span> Livré à : <strong>Ministère des Eaux et Forêts</strong>
+                        </div>
+                        <span class="absolute bottom-2 right-2 material-symbols-outlined text-[#16A34A] text-[16px]">check_circle</span>
+                    </div>
+                    
+                    <!-- Webhook Event 3 (Error) -->
+                    <div class="bg-error/5 border border-error/20 p-3 rounded-lg flex flex-col gap-2 relative">
+                        <div class="flex justify-between items-start">
+                            <span class="bg-gray-200 text-text-main px-1.5 py-0.5 rounded text-[9px] font-bold uppercase font-mono">mission.completed</span>
+                            <span class="text-[9px] text-text-muted font-bold">Hier</span>
+                        </div>
+                        <p class="text-xs font-bold text-text-main">Validation intervention terrain</p>
+                        <div class="flex items-center gap-1 mt-1 text-[10px] text-error font-bold">
+                            <span class="material-symbols-outlined text-[14px]">error</span> Échec livraison : <strong>Partenaire ERP 503</strong>
+                        </div>
+                        <button class="absolute bottom-2 right-2 bg-white border border-gray-200 shadow-sm px-2 py-0.5 rounded text-[9px] font-bold text-text-main hover:bg-gray-50">Réessayer</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

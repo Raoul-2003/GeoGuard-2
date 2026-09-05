@@ -1,0 +1,384 @@
+{% set active_page = "rapports" %}
+{% extends "base.html" %}
+
+{% block topbar %}
+<header class="bg-white border-b border-gray-200 hidden md:flex flex-col md:flex-row md:justify-between md:items-center gap-4 px-6 h-16 w-full sticky top-0 z-20">
+    <div class="flex flex-col">
+        <h1 class="text-lg font-bold text-text-main leading-tight flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">description</span> Centre des rapports
+        </h1>
+        <p class="text-[11px] text-text-muted font-medium">Production automatisée et gestion documentaire GeoGuard</p>
+    </div>
+    
+    <div class="flex items-center gap-3">
+        <button onclick="toggleModal('builder-modal')" class="bg-primary hover:bg-sidebar text-white rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">add_circle</span> Créer un rapport
+        </button>
+        <button class="bg-white hover:bg-white-variant text-text-main border border-gray-200 rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">schedule</span> Planifier
+        </button>
+        <button class="bg-white hover:bg-white-variant text-text-main border border-gray-200 rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">download</span> Exporter
+        </button>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="p-6 w-full mx-auto space-y-6 flex flex-col h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar bg-slate-50">
+
+    <!-- KPI DOCUMENTAIRES (EXACTEMENT 5 CARTES) -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 shrink-0">
+        <!-- KPI 1 -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Rapports générés</h3>
+            <div class="text-3xl font-black text-text-main leading-none">1 245</div>
+        </div>
+        <!-- KPI 2 -->
+        <div class="bg-error/5 border border-error/20 rounded-xl p-4 shadow-sm relative overflow-hidden">
+            <div class="absolute right-0 top-0 w-12 h-12 bg-error/10 rounded-bl-full"></div>
+            <h3 class="text-[10px] font-bold text-error uppercase tracking-wider mb-2">En attente validation</h3>
+            <div class="text-3xl font-black text-error leading-none mb-1">18</div>
+            <button class="text-[10px] font-bold text-error hover:underline">Vérifier &rarr;</button>
+        </div>
+        <!-- KPI 3 -->
+        <div class="bg-primary/5 border border-primary/20 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-primary uppercase tracking-wider mb-2">Automatiques IA</h3>
+            <div class="text-3xl font-black text-primary leading-none">86 %</div>
+        </div>
+        <!-- KPI 4 -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Temps Moyen (Gén.)</h3>
+            <div class="text-2xl font-black text-text-main leading-tight">2m 15s</div>
+        </div>
+        <!-- KPI 5 -->
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Rapports partagés</h3>
+            <div class="text-3xl font-black text-info leading-none">342</div>
+        </div>
+    </div>
+
+    <!-- BIBLIOTHÈQUE DOCUMENTAIRE (GeoGuard Document Center) -->
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm flex-1 flex flex-col overflow-hidden">
+        <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+            <h2 class="text-sm font-bold text-text-main flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-[20px]">folder_open</span> GeoGuard Document Center
+            </h2>
+            <div class="flex items-center gap-2">
+                <input type="text" placeholder="Rechercher par territoire, type..." class="bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-xs w-64 focus:outline-none focus:border-primary">
+                <button class="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-text-muted hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined text-[18px]">filter_list</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="overflow-auto flex-1">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-white text-[10px] text-text-muted uppercase tracking-wider border-b border-gray-200">
+                        <th class="p-4 font-bold">Référence & Titre</th>
+                        <th class="p-4 font-bold">Type</th>
+                        <th class="p-4 font-bold">Date & Auteur</th>
+                        <th class="p-4 font-bold">Quality Score</th>
+                        <th class="p-4 font-bold">Transparence IA</th>
+                        <th class="p-4 font-bold">Statut</th>
+                        <th class="p-4 font-bold text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm text-text-main">
+                    
+                    <!-- Ligne 1 : En attente de validation -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                        <td class="p-4">
+                            <div class="font-bold text-text-main">RR-2026-0056</div>
+                            <div class="text-[10px] text-text-muted mt-0.5">Analyse Déforestation Parc Banco</div>
+                        </td>
+                        <td class="p-4"><span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-[10px] font-bold">Scientifique</span></td>
+                        <td class="p-4">
+                            <div class="font-medium">04/09/2026</div>
+                            <div class="text-[10px] text-text-muted">Généré par IA</div>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex items-center gap-1"><span class="text-primary font-bold">94</span><span class="text-[10px] text-text-muted">/100</span></div>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex items-center gap-1 text-[10px] text-text-muted" title="GeoGuard Report Agent V1 | Sources: Sentinel-2">
+                                <span class="material-symbols-outlined text-[14px] text-primary">psychology</span> Assisté par IA (96%)
+                            </div>
+                        </td>
+                        <td class="p-4">
+                            <span class="px-2 py-1 bg-error/10 text-error rounded text-[10px] font-bold flex items-center w-max gap-1">
+                                <span class="material-symbols-outlined text-[12px]">edit</span> Rév. Analyste
+                            </span>
+                        </td>
+                        <td class="p-4 text-right">
+                            <button onclick="toggleModal('preview-modal')" class="text-primary hover:underline text-xs font-bold">Ouvrir</button>
+                        </td>
+                    </tr>
+
+                    <!-- Ligne 2 : Validé -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                        <td class="p-4">
+                            <div class="font-bold text-text-main">RR-2026-0055</div>
+                            <div class="text-[10px] text-text-muted mt-0.5">Synthèse Hebdomadaire Nord</div>
+                        </td>
+                        <td class="p-4"><span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-[10px] font-bold">Exécutif</span></td>
+                        <td class="p-4">
+                            <div class="font-medium">03/09/2026</div>
+                            <div class="text-[10px] text-text-muted">Validé par J. Dupont</div>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex items-center gap-1"><span class="text-primary font-bold">98</span><span class="text-[10px] text-text-muted">/100</span></div>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex items-center gap-1 text-[10px] text-text-muted">
+                                <span class="material-symbols-outlined text-[14px] text-primary">psychology</span> Assisté par IA (99%)
+                            </div>
+                        </td>
+                        <td class="p-4">
+                            <span class="px-2 py-1 bg-primary/10 text-primary rounded text-[10px] font-bold flex items-center w-max gap-1">
+                                <span class="material-symbols-outlined text-[12px]">check_circle</span> Validé
+                            </span>
+                        </td>
+                        <td class="p-4 text-right flex justify-end gap-2">
+                            <button class="text-text-muted hover:text-text-main"><span class="material-symbols-outlined text-[18px]">share</span></button>
+                            <button class="text-text-muted hover:text-primary"><span class="material-symbols-outlined text-[18px]">download</span></button>
+                        </td>
+                    </tr>
+
+                    <!-- Ligne 3 : Mission Terrain -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                        <td class="p-4">
+                            <div class="font-bold text-text-main">RT-2026-0012</div>
+                            <div class="text-[10px] text-text-muted mt-0.5">Inspection Incendie Taï</div>
+                        </td>
+                        <td class="p-4"><span class="px-2 py-1 bg-orange-100 text-orange-700 rounded text-[10px] font-bold">Terrain</span></td>
+                        <td class="p-4">
+                            <div class="font-medium">01/09/2026</div>
+                            <div class="text-[10px] text-text-muted">Equipe Alpha</div>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex items-center gap-1"><span class="text-primary font-bold">100</span><span class="text-[10px] text-text-muted">/100</span></div>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex items-center gap-1 text-[10px] text-text-muted">
+                                <span class="material-symbols-outlined text-[14px] text-gray-400">person</span> 100% Humain
+                            </div>
+                        </td>
+                        <td class="p-4">
+                            <span class="px-2 py-1 bg-primary/10 text-primary rounded text-[10px] font-bold flex items-center w-max gap-1">
+                                <span class="material-symbols-outlined text-[12px]">check_circle</span> Validé
+                            </span>
+                        </td>
+                        <td class="p-4 text-right flex justify-end gap-2">
+                            <button class="text-text-muted hover:text-text-main"><span class="material-symbols-outlined text-[18px]">share</span></button>
+                            <button class="text-text-muted hover:text-primary"><span class="material-symbols-outlined text-[18px]">download</span></button>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL 1 : GEO GUARD AI REPORT BUILDER -->
+<!-- ========================================== -->
+<div id="builder-modal" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div class="bg-sidebar p-5 flex justify-between items-center shrink-0">
+            <h2 class="text-white font-bold text-lg flex items-center gap-2">
+                <span class="material-symbols-outlined">auto_awesome</span> GeoGuard AI Report Builder
+            </h2>
+            <button onclick="toggleModal('builder-modal')" class="text-white/70 hover:text-white"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        
+        <div class="p-6 overflow-y-auto bg-slate-50 flex-1 space-y-8 custom-scrollbar">
+            
+            <!-- Anti-Surcharge : 3 Choix Rapides -->
+            <div>
+                <h3 class="text-xs font-bold text-text-main uppercase tracking-wider mb-4">1. Mode de génération</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <label class="cursor-pointer group">
+                        <input type="radio" name="report_mode" class="peer sr-only" checked>
+                        <div class="border-2 border-transparent peer-checked:border-primary peer-checked:bg-primary/5 bg-white p-4 rounded-xl shadow-sm transition-all text-center">
+                            <span class="material-symbols-outlined text-primary text-[32px] mb-2 block">bolt</span>
+                            <h4 class="font-bold text-text-main text-sm">Rapport Rapide</h4>
+                            <p class="text-[10px] text-text-muted mt-1">2 minutes. Résumé exécutif et cartes principales.</p>
+                        </div>
+                    </label>
+                    <label class="cursor-pointer group">
+                        <input type="radio" name="report_mode" class="peer sr-only">
+                        <div class="border-2 border-transparent peer-checked:border-primary peer-checked:bg-primary/5 bg-white p-4 rounded-xl shadow-sm transition-all text-center">
+                            <span class="material-symbols-outlined text-info text-[32px] mb-2 block">library_books</span>
+                            <h4 class="font-bold text-text-main text-sm">Rapport Complet</h4>
+                            <p class="text-[10px] text-text-muted mt-1">5 minutes. Inclut la méthodologie et l'analyse scientifique.</p>
+                        </div>
+                    </label>
+                    <label class="cursor-pointer group">
+                        <input type="radio" name="report_mode" class="peer sr-only">
+                        <div class="border-2 border-transparent peer-checked:border-primary peer-checked:bg-primary/5 bg-white p-4 rounded-xl shadow-sm transition-all text-center">
+                            <span class="material-symbols-outlined text-[#EA580C] text-[32px] mb-2 block">tune</span>
+                            <h4 class="font-bold text-text-main text-sm">Rapport Expert</h4>
+                            <p class="text-[10px] text-text-muted mt-1">Personnalisé. Sélection précise des modules à inclure.</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Configuration -->
+            <div>
+                <h3 class="text-xs font-bold text-text-main uppercase tracking-wider mb-4">2. Paramètres du document</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-[11px] font-bold text-text-muted mb-1">Zone cible</label>
+                            <select class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-primary outline-none">
+                                <option>Parc National du Banco</option>
+                                <option>Parc National de Taï</option>
+                                <option>Territoire National (Global)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-text-muted mb-1">Période analysée</label>
+                            <select class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-primary outline-none">
+                                <option>30 derniers jours</option>
+                                <option>6 mois (Tendance)</option>
+                                <option>1 an (Annuel)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-[11px] font-bold text-text-muted mb-1">Type de rapport</label>
+                            <select class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-primary outline-none">
+                                <option>Exécutif (Décideur)</option>
+                                <option>Scientifique (Analyste)</option>
+                                <option>Terrain (Intervention)</option>
+                            </select>
+                        </div>
+                        <div class="bg-[#f59e0b]/10 border border-[#f59e0b]/30 p-3 rounded-lg flex gap-3">
+                            <span class="material-symbols-outlined text-[#f59e0b]">info</span>
+                            <p class="text-[10px] text-[#b45309] leading-relaxed">
+                                L'IA GeoGuard va consolider les données Sentinel-2, l'historique des alertes et les prédictions futures pour générer automatiquement les textes et les cartes interactives.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="p-5 bg-white border-t border-gray-200 flex justify-end gap-3 shrink-0">
+            <button onclick="toggleModal('builder-modal')" class="px-4 py-2 text-sm font-bold text-text-muted hover:bg-gray-100 rounded-lg transition-colors">Annuler</button>
+            <button onclick="toggleModal('builder-modal'); setTimeout(()=> toggleModal('preview-modal'), 500);" class="px-4 py-2 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary/90 transition-colors shadow-md flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">magic_button</span> Générer par IA
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL 2 : SIMULATION DU WORKFLOW (PREVIEW) -->
+<!-- ========================================== -->
+<div id="preview-modal" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-slate-200 rounded-lg shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden relative">
+        
+        <!-- Workflow Bar (Humain in the loop) -->
+        <div class="bg-white border-b border-gray-300 p-3 flex justify-between items-center shrink-0">
+            <div class="flex items-center gap-4">
+                <span class="text-xs font-bold text-text-main flex items-center gap-1"><span class="material-symbols-outlined text-primary text-[16px]">edit</span> Mode Révision (Analyste)</span>
+                <span class="bg-[#f59e0b]/20 text-[#b45309] text-[10px] font-bold px-2 py-0.5 rounded uppercase">Brouillon IA</span>
+            </div>
+            <div class="flex gap-2">
+                <button class="bg-white border border-gray-300 text-text-main hover:bg-gray-50 px-3 py-1.5 rounded text-xs font-bold flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[16px]">add_comment</span> Commenter
+                </button>
+                <button class="bg-primary text-white hover:bg-primary/90 px-3 py-1.5 rounded text-xs font-bold shadow-sm flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[16px]">signature</span> Valider & Signer
+                </button>
+                <button onclick="toggleModal('preview-modal')" class="ml-2 text-text-muted hover:text-text-main"><span class="material-symbols-outlined">close</span></button>
+            </div>
+        </div>
+
+        <!-- Mock PDF Report Area -->
+        <div class="flex-1 overflow-y-auto p-8 flex flex-col items-center custom-scrollbar">
+            
+            <!-- Page A4 -->
+            <div class="w-[794px] min-h-[1123px] bg-white shadow-lg p-12 relative flex flex-col">
+                
+                <!-- Page de garde -->
+                <div class="text-center border-b-2 border-sidebar pb-8 mb-8">
+                    <img src="{{ url_for('static', filename='logo_3d.png') }}" class="w-20 h-20 mx-auto mb-4 filter drop-shadow opacity-90" alt="Logo">
+                    <h1 class="text-3xl font-black text-sidebar tracking-tight mb-2 uppercase">Rapport d'Analyse Environnementale</h1>
+                    <h2 class="text-lg text-primary font-bold">Parc National du Banco</h2>
+                    <p class="text-sm text-text-muted mt-4">Période : Août 2026</p>
+                </div>
+
+                <!-- Info Block -->
+                <div class="flex justify-between text-xs text-text-main mb-12 bg-gray-50 p-4 rounded-lg">
+                    <div><span class="font-bold text-text-muted">Réf:</span> RR-2026-0056</div>
+                    <div><span class="font-bold text-text-muted">Auteur:</span> GeoGuard AI V2.1</div>
+                    <div><span class="font-bold text-text-muted">Généré le:</span> 04/09/2026</div>
+                </div>
+
+                <!-- Section 1 : Résumé Exécutif IA -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-bold text-sidebar border-l-4 border-primary pl-3 mb-4 uppercase">1. Résumé Exécutif</h3>
+                    <div class="bg-primary/5 border border-primary/20 p-4 rounded relative">
+                        <span class="material-symbols-outlined absolute top-2 right-2 text-primary opacity-20 text-[40px]">psychology</span>
+                        <p class="text-sm text-text-main leading-relaxed text-justify relative z-10">
+                            Une augmentation critique des anomalies de la couverture végétale a été détectée dans le secteur Nord-Est du parc durant les 30 derniers jours. Le modèle d'intelligence artificielle évalue à <strong>96%</strong> la probabilité d'une activité anthropique illégale (bûcheronnage). La surface totale impactée est estimée à 12,4 hectares. Il est recommandé de déployer une équipe d'intervention dans les 48 heures pour sécuriser la zone périphérique.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Section 2 : Cartographie -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-bold text-sidebar border-l-4 border-primary pl-3 mb-4 uppercase">2. Cartographie Interactive</h3>
+                    <div class="w-full h-64 bg-gray-200 rounded relative overflow-hidden group">
+                        <img src="/data/processed/anomaly_map.png" class="w-full h-full object-cover">
+                        <!-- Comment overlay (collaboration) -->
+                        <div class="absolute top-2 left-2 bg-white/90 backdrop-blur p-2 rounded shadow text-xs border-l-2 border-error opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span class="font-bold text-text-main block">Commentaire Analyste :</span>
+                            Vérifier la calibration du capteur SAR sur cette zone.
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-center text-text-muted mt-2 italic">Figure 1: Zones de détection IA (Sentinel-2 L2A). Rouge = Perte de biomasse avérée.</p>
+                </div>
+
+                <!-- Footer Page -->
+                <div class="mt-auto pt-4 border-t border-gray-200 flex justify-between text-[10px] text-text-muted font-bold">
+                    <span>GeoGuard V2 - Confidentiel</span>
+                    <span>Page 1 / 1</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Assistant Report Agent -->
+        <div class="absolute bottom-4 right-8 w-[300px] bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden">
+            <div class="bg-sidebar p-2 flex items-center justify-between">
+                <span class="text-xs font-bold text-white flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">smart_toy</span> Report Assistant</span>
+            </div>
+            <div class="p-3 text-[10px] text-text-main bg-slate-50 space-y-2">
+                <p>Souhaitez-vous :</p>
+                <button class="w-full text-left bg-white border border-gray-200 p-1.5 rounded hover:border-primary">1. Simplifier le résumé exécutif</button>
+                <button class="w-full text-left bg-white border border-gray-200 p-1.5 rounded hover:border-primary">2. Traduire en Anglais</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function toggleModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal.classList.contains('hidden')) {
+            modal.classList.remove('hidden');
+        } else {
+            modal.classList.add('hidden');
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,260 @@
+{% set active_page = "analyses" %}
+{% extends "base.html" %}
+
+{% block topbar %}
+<header class="bg-white border-b border-gray-200 hidden md:flex flex-col md:flex-row md:justify-between md:items-center gap-4 px-6 h-16 w-full sticky top-0 z-20">
+    <div class="flex flex-col">
+        <h1 class="text-lg font-bold text-text-main leading-tight flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">analytics</span> Laboratoire d'analyse IA
+        </h1>
+        <p class="text-[11px] text-text-muted font-medium">Détection intelligente des changements territoriaux</p>
+    </div>
+    
+    <div class="flex items-center gap-3">
+        <button class="bg-white hover:bg-gray-50 text-text-main border border-gray-200 rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">add</span> Nouvelle analyse
+        </button>
+        <button class="bg-white hover:bg-gray-50 text-text-main border border-gray-200 rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">upload_file</span> Charger images
+        </button>
+        <button class="bg-primary hover:bg-sidebar text-white rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">compare</span> Comparer
+        </button>
+        <button class="bg-white hover:bg-gray-50 text-text-main border border-gray-200 rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">download</span> Export résultat
+        </button>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-col h-[calc(100vh-64px)] w-full overflow-hidden bg-slate-50 relative">
+
+    <!-- Configuration de l'analyse (Anti-surcharge) -->
+    <div class="w-full bg-white border-b border-gray-200 p-4 shrink-0 flex gap-4 items-end z-10 shadow-sm">
+        <div class="flex-1">
+            <label class="block text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">Zone Cible</label>
+            <select class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs focus:border-primary outline-none">
+                <option>Parc National Banco (Secteur Nord)</option>
+                <option>Forêt de Taï</option>
+                <option>Dessin manuel...</option>
+            </select>
+        </div>
+        <div class="flex-1">
+            <label class="block text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">Image Référence (Avant)</label>
+            <input type="text" value="01 Février 2026 - S2 L2A" readonly class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs text-text-main outline-none">
+        </div>
+        <div class="flex-1">
+            <label class="block text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">Image Comparaison (Après)</label>
+            <input type="text" value="04 Septembre 2026 - S2 L2A" readonly class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs text-text-main outline-none">
+        </div>
+        <div class="flex-1">
+            <label class="block text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">Type d'analyse</label>
+            <select class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs focus:border-primary outline-none">
+                <option>Déforestation</option>
+                <option>Urbanisation</option>
+                <option>Incendie</option>
+                <option>Analyse générale</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Visual Workflow Bar -->
+    <div class="w-full bg-gray-50 border-b border-gray-200 px-6 py-2 shrink-0 flex justify-center z-10">
+        <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider">
+            <div class="flex items-center gap-1 text-primary"><span class="material-symbols-outlined text-[14px]">check_circle</span> 1. Données</div>
+            <div class="w-8 h-px bg-primary"></div>
+            <div class="flex items-center gap-1 text-primary"><span class="material-symbols-outlined text-[14px]">check_circle</span> 2. Prétraitement</div>
+            <div class="w-8 h-px bg-primary"></div>
+            <div class="flex items-center gap-1 text-primary"><span class="material-symbols-outlined text-[14px]">check_circle</span> 3. IA</div>
+            <div class="w-8 h-px bg-gray-300"></div>
+            <div class="flex items-center gap-1 text-text-main animate-pulse"><span class="material-symbols-outlined text-[14px]">hourglass_empty</span> 4. Résultats (En cours)</div>
+            <div class="w-8 h-px bg-gray-300"></div>
+            <div class="flex items-center gap-1 text-text-muted"><span class="material-symbols-outlined text-[14px]">radio_button_unchecked</span> 5. Validation</div>
+        </div>
+    </div>
+
+    <!-- MAIN LAB WORKSPACE -->
+    <div class="flex-1 flex overflow-hidden">
+        
+        <!-- GAUCHE : COMPARATEUR SCIENTIFIQUE (65%) -->
+        <div class="w-[65%] bg-slate-900 relative flex flex-col border-r border-gray-200 overflow-hidden group">
+            
+            <!-- Toolbar Map -->
+            <div class="absolute top-4 left-4 z-10 bg-white/95 backdrop-blur px-3 py-2 rounded-lg shadow-sm flex items-center gap-2 border border-gray-200">
+                <button class="w-7 h-7 rounded hover:bg-gray-100 flex items-center justify-center text-text-main" title="Sélecteur Pixel"><span class="material-symbols-outlined text-[18px]">ads_click</span></button>
+                <button class="w-7 h-7 rounded bg-primary/10 text-primary flex items-center justify-center" title="Masque IA"><span class="material-symbols-outlined text-[18px]">layers</span></button>
+                <div class="w-px h-4 bg-gray-300 mx-1"></div>
+                <span class="text-[10px] font-bold text-error flex items-center gap-1">
+                    <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span> 12.5 ha détectés
+                </span>
+            </div>
+
+            <!-- Slider Viewer Simulation -->
+            <div class="flex-1 relative cursor-crosshair select-none" id="lab-time-machine" onclick="simulatePixelClick(event)">
+                <!-- Image Récente (Après) + Masque Segmentation IA -->
+                <div class="absolute inset-0 w-full h-full relative">
+                    <img src="/data/processed/anomaly_map.png" class="absolute inset-0 w-full h-full object-cover filter contrast-125" draggable="false">
+                    <!-- Fake Segmentation Mask Overlay -->
+                    <div class="absolute inset-0 bg-error/30" style="clip-path: polygon(40% 30%, 60% 25%, 65% 45%, 45% 50%, 35% 40%);"></div>
+                    <div class="absolute inset-0 border-2 border-error" style="clip-path: polygon(40% 30%, 60% 25%, 65% 45%, 45% 50%, 35% 40%);"></div>
+                </div>
+                
+                <!-- Image Ancienne (Avant) clipsée -->
+                <div class="absolute inset-0 overflow-hidden border-r-2 border-primary shadow-[2px_0_10px_rgba(0,0,0,0.5)]" id="lab-clipper" style="width: 50%;">
+                    <img src="/data/processed/anomaly_map.png" class="absolute inset-0 w-[65vw] h-full object-cover filter grayscale sepia-[.2] contrast-100" draggable="false" style="max-width: none;">
+                </div>
+
+                <!-- Curseur central -->
+                <div class="absolute top-0 bottom-0 flex flex-col items-center justify-center -ml-4" id="lab-handle" style="left: 50%;">
+                    <div class="w-8 h-8 bg-primary rounded-full shadow-lg border-2 border-white flex items-center justify-center text-white cursor-ew-resize">
+                        <span class="material-symbols-outlined text-[16px]">sync_alt</span>
+                    </div>
+                </div>
+
+                <!-- Panneau Simulation Clic Pixel (Caché par défaut) -->
+                <div id="pixel-inspector" class="absolute hidden bg-white/95 backdrop-blur border border-gray-200 p-3 rounded-lg shadow-xl text-xs z-20 pointer-events-none" style="top: 50%; left: 60%;">
+                    <div class="font-bold text-text-main border-b border-gray-200 pb-1 mb-2">Analyse Pixel</div>
+                    <div class="text-[10px] text-text-muted mb-2 font-mono">Lat: 5.3812, Lng: -4.0456</div>
+                    <div class="grid grid-cols-2 gap-2 text-[10px]">
+                        <div><span class="block text-text-muted">Avant (NDVI)</span><span class="font-bold text-[#16A34A]">0.82</span></div>
+                        <div><span class="block text-text-muted">Après (NDVI)</span><span class="font-bold text-error">0.21</span></div>
+                    </div>
+                    <div class="mt-2 bg-error/10 text-error p-1 rounded text-center font-bold text-[9px] uppercase tracking-wider">Delta Spectral : -74%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DROITE : INTELLIGENCE & VALIDATION (35%) -->
+        <div class="w-[35%] bg-slate-50 flex flex-col h-full overflow-y-auto custom-scrollbar">
+            
+            <div class="p-6 flex-1 flex flex-col gap-6">
+                <!-- AI Confidence Score -->
+                <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+                    <h3 class="text-xs font-bold text-text-muted uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">psychology</span> AI Confidence Score
+                    </h3>
+                    <div class="flex items-center gap-4">
+                        <div class="text-5xl font-black text-error leading-none">94<span class="text-xl text-text-muted font-bold">%</span></div>
+                        <div class="flex-1 space-y-1.5 text-[10px] font-bold">
+                            <div class="flex justify-between items-center"><span class="text-text-muted">Détection pure</span> <span class="text-primary">96%</span></div>
+                            <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden"><div class="bg-primary h-full w-[96%]"></div></div>
+                            
+                            <div class="flex justify-between items-center pt-1"><span class="text-text-muted">Classification</span> <span class="text-[#EA580C]">91%</span></div>
+                            <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden"><div class="bg-[#EA580C] h-full w-[91%]"></div></div>
+                            
+                            <div class="flex justify-between items-center pt-1"><span class="text-text-muted">Contexte</span> <span class="text-primary">95%</span></div>
+                            <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden"><div class="bg-primary h-full w-[95%]"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pourquoi cette détection -->
+                <div class="bg-sidebar border border-sidebar rounded-2xl p-5 shadow-sm relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-primary/20 rounded-bl-full pointer-events-none"></div>
+                    <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-3">Pourquoi cette détection ?</h3>
+                    <p class="text-sm text-white/90 leading-relaxed font-medium mb-4">L'IA a segmenté une <strong>Perte Végétale Majeure</strong>.</p>
+                    <ul class="space-y-2 text-[11px] text-white/70 mb-4">
+                        <li class="flex items-center gap-2"><span class="material-symbols-outlined text-[14px] text-primary">check_circle</span> Baisse critique du NDVI (-74% sur la zone)</li>
+                        <li class="flex items-center gap-2"><span class="material-symbols-outlined text-[14px] text-primary">check_circle</span> Changement radical de signature spectrale (Sol Nu)</li>
+                        <li class="flex items-center gap-2"><span class="material-symbols-outlined text-[14px] text-primary">check_circle</span> Corrélation avec pression urbaine environnante</li>
+                    </ul>
+                    <div class="bg-black/30 p-2 rounded text-[10px] text-white/50 italic border-l-2 border-[#EA580C]">
+                        Facteur d'incertitude : Présence de quelques nuages fins sur le bord ouest du masque.
+                    </div>
+                </div>
+
+                <!-- Comparaison Historique (Mock) -->
+                <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm flex-1">
+                    <h3 class="text-xs font-bold text-text-muted uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">timeline</span> Évolution Multi-Indices
+                    </h3>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-[10px] font-bold mb-1"><span>NDVI (Végétation)</span> <span class="text-error">Chute drastique</span></div>
+                            <div class="w-full h-8 bg-gray-50 border border-gray-100 rounded flex items-center justify-between px-2 text-[9px] text-text-muted">
+                                <span>2020</span> <span>2022</span> <span>2024</span> <span class="font-bold text-error">2026</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[10px] font-bold mb-1"><span>NBR (Risque Incendie)</span> <span class="text-[#16A34A]">Stable</span></div>
+                            <div class="w-full h-8 bg-gray-50 border border-gray-100 rounded flex items-center justify-between px-2 text-[9px] text-text-muted">
+                                <span>2020</span> <span>2022</span> <span>2024</span> <span class="font-bold text-text-main">2026</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Validation Experte (Human-in-the-loop) -->
+            <div class="bg-white border-t border-gray-200 p-5 shrink-0 shadow-[0_-4px_10px_rgba(0,0,0,0.02)]">
+                <h3 class="text-[10px] font-bold text-text-main uppercase tracking-wider mb-3">Validation Experte (Entraîne l'IA)</h3>
+                
+                <div class="grid grid-cols-3 gap-2 mb-4">
+                    <button class="bg-error/10 hover:bg-error/20 border border-error/20 text-error rounded-lg py-2 text-[10px] font-bold transition-colors flex flex-col items-center gap-1">
+                        <span class="material-symbols-outlined text-[16px]">verified</span> Confirmé
+                    </button>
+                    <button class="bg-gray-100 hover:bg-gray-200 text-text-main rounded-lg py-2 text-[10px] font-bold transition-colors flex flex-col items-center gap-1">
+                        <span class="material-symbols-outlined text-[16px]">visibility</span> À Surveiller
+                    </button>
+                    <button class="bg-green-100 hover:bg-green-200 border border-green-200 text-green-700 rounded-lg py-2 text-[10px] font-bold transition-colors flex flex-col items-center gap-1">
+                        <span class="material-symbols-outlined text-[16px]">block</span> Faux Positif
+                    </button>
+                </div>
+                
+                <div class="flex gap-2">
+                    <button class="flex-1 bg-error hover:bg-error/90 text-white rounded-lg py-2.5 text-xs font-bold shadow-md transition-colors flex justify-center items-center gap-2">
+                        <span class="material-symbols-outlined text-[16px]">campaign</span> Créer Alerte
+                    </button>
+                    <button class="w-10 bg-white border border-gray-200 hover:bg-gray-50 text-text-main rounded-lg flex items-center justify-center transition-colors shadow-sm" title="Ajouter commentaire / Mode collaboratif">
+                        <span class="material-symbols-outlined text-[18px]">forum</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Interactive Slider Logic for Time Machine (Lab)
+    const container = document.getElementById('lab-time-machine');
+    const clipper = document.getElementById('lab-clipper');
+    const handle = document.getElementById('lab-handle');
+    let isDragging = false;
+
+    if(container) {
+        // Drag logic for slider handle
+        handle.addEventListener('mousedown', (e) => { isDragging = true; e.stopPropagation(); });
+        window.addEventListener('mouseup', () => { isDragging = false; });
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const rect = container.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            x = Math.max(0, Math.min(x, rect.width)); // Limit bounds
+            const percentage = (x / rect.width) * 100;
+            clipper.style.width = percentage + '%';
+            handle.style.left = percentage + '%';
+        });
+    }
+
+    // Simulate Expert Pixel Inspection
+    function simulatePixelClick(e) {
+        if(isDragging) return;
+        const inspector = document.getElementById('pixel-inspector');
+        
+        // Only show if clicking roughly on the mask area (for demo purposes)
+        const rect = container.getBoundingClientRect();
+        let x = e.clientX - rect.left;
+        let y = e.clientY - rect.top;
+        
+        inspector.style.left = (x + 15) + 'px';
+        inspector.style.top = (y + 15) + 'px';
+        inspector.classList.remove('hidden');
+        
+        // Hide after 3 seconds
+        setTimeout(() => {
+            inspector.classList.add('hidden');
+        }, 3000);
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,336 @@
+{% set active_page = "satellites" %}
+{% extends "base.html" %}
+
+{% block topbar %}
+<header class="bg-white border-b border-gray-200 hidden md:flex flex-col md:flex-row md:justify-between md:items-center gap-4 px-6 h-16 w-full sticky top-0 z-20">
+    <div class="flex flex-col">
+        <h1 class="text-lg font-bold text-text-main leading-tight flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">satellite_alt</span> Centre d'imagerie satellite
+        </h1>
+        <p class="text-[11px] text-text-muted font-medium">Gestion et analyse des données d'observation terrestre</p>
+    </div>
+    
+    <div class="flex items-center gap-3">
+        <button class="bg-white hover:bg-gray-50 text-text-main border border-gray-200 rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">search</span> Nouvelle recherche
+        </button>
+        <button class="bg-white hover:bg-gray-50 text-text-main border border-gray-200 rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">upload</span> Importer image
+        </button>
+        <button class="bg-primary hover:bg-sidebar text-white rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">analytics</span> Lancer analyse
+        </button>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="p-6 w-full mx-auto space-y-6 flex flex-col h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar bg-slate-50">
+
+    <!-- KPI IMAGERIE (EXACTEMENT 6 CARTES) -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 shrink-0">
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Images disponibles</h3>
+            <div class="text-2xl font-black text-text-main leading-tight">245 800</div>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Satellites actifs</h3>
+            <div class="text-3xl font-black text-primary leading-none">5</div>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Volume données</h3>
+            <div class="text-3xl font-black text-text-main leading-none">18 <span class="text-sm">To</span></div>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Images analysées</h3>
+            <div class="text-3xl font-black text-info leading-none">92 %</div>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Dernière acquisition</h3>
+            <div class="text-xl font-black text-text-main leading-tight mt-1">Il y a 35 min</div>
+        </div>
+        <div class="bg-primary/5 border border-primary/20 rounded-xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-primary uppercase tracking-wider mb-2">Qualité moyenne</h3>
+            <div class="text-3xl font-black text-primary leading-none">94 %</div>
+        </div>
+    </div>
+
+    <!-- RECHERCHE SPATIO-TEMPORELLE AVANCÉE -->
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-4 flex flex-col md:flex-row gap-4 shrink-0 items-end">
+        <div class="flex-1">
+            <label class="block text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">Localisation</label>
+            <div class="relative">
+                <span class="material-symbols-outlined absolute left-3 top-2 text-text-muted text-[18px]">location_on</span>
+                <input type="text" placeholder="Pays, Région, Commune, Coordonnées..." class="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors">
+            </div>
+        </div>
+        <div class="w-48">
+            <label class="block text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">Période</label>
+            <select class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs focus:border-primary outline-none">
+                <option>30 derniers jours</option>
+                <option>Année en cours</option>
+                <option>2020 - 2026</option>
+            </select>
+        </div>
+        <div class="w-64">
+            <label class="block text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">Satellites</label>
+            <div class="flex items-center gap-3 h-[34px]">
+                <label class="flex items-center gap-1 text-xs font-bold text-text-main"><input type="checkbox" checked class="text-primary rounded"> S-1</label>
+                <label class="flex items-center gap-1 text-xs font-bold text-text-main"><input type="checkbox" checked class="text-primary rounded"> S-2</label>
+                <label class="flex items-center gap-1 text-xs font-bold text-text-main"><input type="checkbox" checked class="text-primary rounded"> Landsat</label>
+            </div>
+        </div>
+        <div class="w-48">
+            <label class="block text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">Filtre Qualité</label>
+            <select class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs focus:border-primary outline-none">
+                <option>Nuages max: 10%</option>
+                <option>Nuages max: 30%</option>
+                <option>Sans filtre nuage</option>
+            </select>
+        </div>
+        <button class="bg-sidebar hover:bg-sidebar/90 text-white px-6 py-2 rounded-lg text-xs font-bold transition-colors shadow-sm h-[34px]">Rechercher</button>
+    </div>
+
+    <!-- CATALOGUE SATELLITE (Grille des images récentes) -->
+    <div class="flex-1">
+        <h2 class="text-sm font-bold text-text-main uppercase tracking-wider mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">photo_library</span> Dernières Acquisitions
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            <!-- Carte Image 1 -->
+            <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group flex flex-col">
+                <div class="h-32 relative overflow-hidden bg-slate-900 cursor-pointer" onclick="toggleModal('expert-viewer-modal')">
+                    <img src="/data/processed/anomaly_map.png" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80" alt="Sentinel">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div class="absolute bottom-2 left-2 flex items-center gap-1">
+                        <span class="bg-primary text-white px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">S2 L2A</span>
+                        <span class="bg-black/50 backdrop-blur text-white px-2 py-0.5 rounded text-[9px] font-bold">10m</span>
+                    </div>
+                </div>
+                <div class="p-4 flex flex-col flex-1">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="text-xs font-bold text-text-main">Abidjan Nord (Banco)</h4>
+                        <span class="text-[10px] text-text-muted font-bold">04/09/2026</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <div class="bg-gray-50 rounded p-1.5 text-center">
+                            <span class="block text-[9px] text-text-muted uppercase">Qualité</span>
+                            <span class="text-xs font-bold text-[#16A34A]">Excellent</span>
+                        </div>
+                        <div class="bg-gray-50 rounded p-1.5 text-center">
+                            <span class="block text-[9px] text-text-muted uppercase">Nuages</span>
+                            <span class="text-xs font-bold text-text-main">4 %</span>
+                        </div>
+                    </div>
+                    <div class="mt-auto grid grid-cols-2 gap-2">
+                        <button onclick="toggleModal('expert-viewer-modal')" class="bg-sidebar hover:bg-sidebar/90 text-white rounded text-[10px] font-bold py-1.5 transition-colors shadow-sm col-span-2 flex justify-center items-center gap-1">
+                            <span class="material-symbols-outlined text-[14px]">science</span> Mode Expert
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carte Image 2 -->
+            <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group flex flex-col">
+                <div class="h-32 relative overflow-hidden bg-slate-900 cursor-pointer" onclick="toggleModal('expert-viewer-modal')">
+                    <img src="/data/processed/anomaly_map.png" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-60 filter grayscale sepia-[.3]" alt="Sentinel">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div class="absolute bottom-2 left-2 flex items-center gap-1">
+                        <span class="bg-info text-white px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">S1 GRD</span>
+                        <span class="bg-black/50 backdrop-blur text-white px-2 py-0.5 rounded text-[9px] font-bold">10m</span>
+                    </div>
+                </div>
+                <div class="p-4 flex flex-col flex-1">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="text-xs font-bold text-text-main">Forêt de Taï (Radar)</h4>
+                        <span class="text-[10px] text-text-muted font-bold">03/09/2026</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <div class="bg-gray-50 rounded p-1.5 text-center">
+                            <span class="block text-[9px] text-text-muted uppercase">Qualité</span>
+                            <span class="text-xs font-bold text-info">Bonne</span>
+                        </div>
+                        <div class="bg-gray-50 rounded p-1.5 text-center">
+                            <span class="block text-[9px] text-text-muted uppercase">Pénétration</span>
+                            <span class="text-xs font-bold text-text-main">100 %</span>
+                        </div>
+                    </div>
+                    <div class="mt-auto grid grid-cols-2 gap-2">
+                        <button onclick="toggleModal('expert-viewer-modal')" class="bg-sidebar hover:bg-sidebar/90 text-white rounded text-[10px] font-bold py-1.5 transition-colors shadow-sm col-span-2 flex justify-center items-center gap-1">
+                            <span class="material-symbols-outlined text-[14px]">science</span> Mode Expert
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cartes fictives pour la grille -->
+            {% for i in range(2) %}
+            <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group flex flex-col opacity-60">
+                <div class="h-32 bg-gray-200 flex items-center justify-center relative">
+                    <span class="material-symbols-outlined text-gray-400 text-3xl">satellite_alt</span>
+                    <div class="absolute bottom-2 left-2 flex items-center gap-1">
+                        <span class="bg-gray-400 text-white px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">Landsat-9</span>
+                    </div>
+                </div>
+                <div class="p-4 flex flex-col flex-1">
+                    <div class="flex justify-between items-start mb-4">
+                        <h4 class="text-xs font-bold text-text-main">Zone Périphérique {{ i+1 }}</h4>
+                        <span class="text-[10px] text-text-muted font-bold">Hier</span>
+                    </div>
+                    <div class="mt-auto grid grid-cols-2 gap-2">
+                        <button class="bg-gray-100 hover:bg-gray-200 text-text-main rounded text-[10px] font-bold py-1.5 transition-colors col-span-2">Ouvrir</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL : VISUALISEUR SCIENTIFIQUE (EXPERT) -->
+<!-- ========================================== -->
+<div id="expert-viewer-modal" class="fixed inset-0 bg-black/90 z-[100] hidden flex flex-col backdrop-blur-md">
+    
+    <!-- Topbar Expert -->
+    <div class="h-14 bg-[#0a0a0a] border-b border-white/10 flex justify-between items-center px-4 shrink-0 text-white">
+        <div class="flex items-center gap-4">
+            <h2 class="text-sm font-bold flex items-center gap-2"><span class="material-symbols-outlined text-primary">science</span> GeoGuard Scientific Viewer</h2>
+            <div class="w-px h-4 bg-white/20"></div>
+            <span class="text-xs text-white/70 font-mono">S2A_MSIL2A_20260904T101422_ABIDJAN</span>
+        </div>
+        <div class="flex items-center gap-3">
+            <button class="bg-primary hover:bg-primary/90 text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-sm flex items-center gap-2 transition-colors">
+                <span class="material-symbols-outlined text-[16px]">psychology</span> Analyser avec l'IA
+            </button>
+            <button onclick="toggleModal('expert-viewer-modal')" class="text-white/70 hover:text-white"><span class="material-symbols-outlined">close</span></button>
+        </div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="flex-1 flex overflow-hidden">
+        
+        <!-- Left Panel : Propriétés -->
+        <div class="w-64 bg-[#111111] border-r border-white/10 p-4 flex flex-col gap-6 overflow-y-auto">
+            <!-- Quality Score -->
+            <div class="bg-[#1a1a1a] p-3 rounded-lg border border-white/5">
+                <h3 class="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-3">Satellite Data Quality</h3>
+                <div class="flex items-end gap-1 mb-2">
+                    <span class="text-3xl font-black text-primary leading-none">96</span>
+                    <span class="text-xs text-white/50 font-medium mb-1">/ 100</span>
+                </div>
+                <div class="space-y-1.5 text-[10px] text-white/70">
+                    <div class="flex justify-between"><span>Nuages (30%)</span><span class="text-primary font-bold">Excellent</span></div>
+                    <div class="flex justify-between"><span>Résolution (25%)</span><span class="text-primary font-bold">10m</span></div>
+                    <div class="flex justify-between"><span>Alignement (15%)</span><span class="text-primary font-bold">Parfait</span></div>
+                </div>
+            </div>
+
+            <!-- Bandes Spectrales -->
+            <div>
+                <h3 class="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-3">Bandes Spectrales</h3>
+                <div class="space-y-1">
+                    <label class="flex items-center gap-2 text-xs font-bold text-white bg-[#1a1a1a] p-2 rounded cursor-pointer border border-primary/30">
+                        <input type="radio" name="band" checked class="text-primary"> Composé RGB Naturel
+                    </label>
+                    <label class="flex items-center gap-2 text-xs font-medium text-white/70 hover:bg-[#1a1a1a] p-2 rounded cursor-pointer transition-colors">
+                        <input type="radio" name="band"> B08+B04+B03 (Fausses Couleurs)
+                    </label>
+                    <label class="flex items-center gap-2 text-xs font-medium text-white/70 hover:bg-[#1a1a1a] p-2 rounded cursor-pointer transition-colors">
+                        <input type="radio" name="band"> NDVI (Végétation)
+                    </label>
+                    <label class="flex items-center gap-2 text-xs font-medium text-white/70 hover:bg-[#1a1a1a] p-2 rounded cursor-pointer transition-colors">
+                        <input type="radio" name="band"> NDWI (Eau)
+                    </label>
+                </div>
+            </div>
+
+            <!-- Prétraitement -->
+            <div>
+                <h3 class="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-3">Prétraitement appliqué</h3>
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2 text-[10px] text-white/80"><span class="material-symbols-outlined text-[14px] text-primary">check_circle</span> Corr. Atmosphérique (L2A)</div>
+                    <div class="flex items-center gap-2 text-[10px] text-white/80"><span class="material-symbols-outlined text-[14px] text-primary">check_circle</span> Alignement Spatial</div>
+                    <div class="flex items-center gap-2 text-[10px] text-white/80"><span class="material-symbols-outlined text-[14px] text-primary">check_circle</span> Masque Nuage (SCL)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center : Satellite Time Machine Viewer -->
+        <div class="flex-1 bg-black relative flex flex-col">
+            <!-- Toolbar Time Machine -->
+            <div class="absolute top-4 left-1/2 -translate-x-1/2 z-10 bg-[#1a1a1a]/90 backdrop-blur border border-white/10 px-4 py-2 rounded-full flex items-center gap-4 shadow-2xl">
+                <span class="material-symbols-outlined text-primary text-[20px]">history</span>
+                <span class="text-xs font-bold text-white">Satellite Time Machine</span>
+                <div class="w-px h-4 bg-white/20"></div>
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] bg-white/10 text-white px-2 py-0.5 rounded">T-0 : Fév 2026</span>
+                    <span class="text-[10px] font-bold text-white/50">VS</span>
+                    <span class="text-[10px] bg-primary/20 text-primary border border-primary/30 px-2 py-0.5 rounded">T-1 : Sept 2026</span>
+                </div>
+            </div>
+
+            <!-- Slider Viewer Simulation -->
+            <div class="flex-1 relative overflow-hidden group cursor-ew-resize select-none" id="time-machine-container">
+                <!-- Image Récente (Après) -->
+                <img src="/data/processed/anomaly_map.png" class="absolute inset-0 w-full h-full object-cover opacity-90 filter contrast-125" draggable="false">
+                
+                <!-- Image Ancienne (Avant) clipsée -->
+                <div class="absolute inset-0 overflow-hidden border-r-2 border-primary shadow-[2px_0_10px_rgba(0,0,0,0.5)]" id="time-machine-clipper" style="width: 50%;">
+                    <img src="/data/processed/anomaly_map.png" class="absolute inset-0 w-[100vw] h-full object-cover filter grayscale sepia-[.2] contrast-100" draggable="false" style="max-width: none;">
+                </div>
+
+                <!-- Curseur central -->
+                <div class="absolute top-0 bottom-0 flex flex-col items-center justify-center -ml-4" id="time-machine-handle" style="left: 50%;">
+                    <div class="w-8 h-8 bg-primary rounded-full shadow-lg border-2 border-white flex items-center justify-center text-white">
+                        <span class="material-symbols-outlined text-[16px]">sync_alt</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="absolute bottom-4 left-4 z-10 bg-[#1a1a1a]/90 backdrop-blur border border-white/10 p-3 rounded-lg flex flex-col gap-1">
+                <span class="text-[10px] font-bold text-white/50 uppercase">Analyse IA (Changements)</span>
+                <span class="text-sm font-bold text-error flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">warning</span> Détection : -12.4 ha (Végétation)</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal.classList.contains('hidden')) {
+            modal.classList.remove('hidden');
+        } else {
+            modal.classList.add('hidden');
+        }
+    }
+
+    // Interactive Slider Logic for Time Machine
+    const container = document.getElementById('time-machine-container');
+    const clipper = document.getElementById('time-machine-clipper');
+    const handle = document.getElementById('time-machine-handle');
+    let isDragging = false;
+
+    if(container) {
+        container.addEventListener('mousedown', (e) => { isDragging = true; updateSlider(e); });
+        window.addEventListener('mouseup', () => { isDragging = false; });
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            updateSlider(e);
+        });
+
+        function updateSlider(e) {
+            const rect = container.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            x = Math.max(0, Math.min(x, rect.width)); // Limit bounds
+            const percentage = (x / rect.width) * 100;
+            clipper.style.width = percentage + '%';
+            handle.style.left = percentage + '%';
+        }
+    }
+</script>
+{% endblock %}

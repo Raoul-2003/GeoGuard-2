@@ -1,0 +1,226 @@
+{% set active_page = "predictions" %}
+{% extends "base.html" %}
+
+{% block topbar %}
+<header class="bg-white border-b border-gray-200 hidden md:flex flex-col md:flex-row md:justify-between md:items-center gap-4 px-6 h-16 w-full sticky top-0 z-10">
+    <div class="flex flex-col">
+        <h1 class="text-lg font-bold text-text-main leading-tight flex items-center gap-2"><span class="material-symbols-outlined text-primary">online_prediction</span> Intelligence prédictive</h1>
+        <p class="text-[11px] text-text-muted">Anticipation des risques territoriaux grâce à l'IA</p>
+    </div>
+    <div class="flex items-center gap-3">
+        <button class="bg-gray-50 hover:bg-white-variant text-text-main border border-gray-200 rounded-[10px] px-3 py-1.5 text-xs font-medium flex items-center gap-1 transition-colors">
+            <span class="material-symbols-outlined text-[16px]">add</span> Nouvelle simulation
+        </button>
+        <button class="bg-white hover:bg-white-variant text-primary border border-gray-200 rounded-[10px] px-3 py-1.5 text-xs font-medium flex items-center gap-1 transition-colors">
+            <span class="material-symbols-outlined text-[16px]">model_training</span> Générer prévision
+        </button>
+        <button class="bg-primary hover:bg-sidebar text-white rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">download</span> Export analyse
+        </button>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="p-6 max-w-7xl mx-auto space-y-6">
+    
+    <!-- KPI Row 1 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <!-- Card 1 -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm relative overflow-hidden">
+            <h3 class="text-[10px] font-bold text-text-muted mb-2 uppercase tracking-wider">Zones à risque futur</h3>
+            <div class="text-3xl font-black text-error mb-1">42</div>
+            <div class="text-[10px] font-medium text-error flex items-center"><span class="material-symbols-outlined text-[12px] mr-1">update</span> Dans les 90 prochains jours</div>
+        </div>
+        <!-- Card 2 -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted mb-2 uppercase tracking-wider">Risque moyen (National)</h3>
+            <div class="flex items-end gap-1">
+                <div class="text-3xl font-black text-[#EA580C]">68</div>
+                <div class="text-xs text-text-muted mb-1 font-medium">/ 100</div>
+            </div>
+            <div class="w-full h-1.5 bg-gray-50 rounded-full overflow-hidden mt-2">
+                <div class="h-full bg-gradient-to-r from-secondary to-[#EA580C] w-[68%]"></div>
+            </div>
+        </div>
+        <!-- Card 3 -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted mb-2 uppercase tracking-wider">Déforestation probable</h3>
+            <div class="text-2xl font-black text-text-main mb-1">850 ha</div>
+            <div class="text-[10px] font-medium text-text-muted flex items-center"><span class="material-symbols-outlined text-[12px] mr-1">trending_up</span> Projection: 12 mois</div>
+        </div>
+        <!-- Card 4 -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted mb-2 uppercase tracking-wider">Risque Incendie</h3>
+            <div class="text-2xl font-black text-[#EA580C] mb-1">23 zones</div>
+            <div class="text-[10px] font-medium text-text-muted">Alerte sécheresse active</div>
+        </div>
+        <!-- Card 5 -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+            <h3 class="text-[10px] font-bold text-text-muted mb-2 uppercase tracking-wider">Changements urbains</h3>
+            <div class="text-2xl font-black text-info mb-1">145 secteurs</div>
+            <div class="text-[10px] font-medium text-text-muted">Expansion très probable</div>
+        </div>
+        <!-- Card 6 -->
+        <div class="bg-white border border-primary/30 rounded-2xl p-4 shadow-sm bg-primary/5">
+            <h3 class="text-[10px] font-bold text-primary mb-2 uppercase tracking-wider">Précision Modèle (V1.4)</h3>
+            <div class="text-3xl font-black text-primary mb-1">89 %</div>
+            <div class="text-[10px] font-medium text-text-muted flex items-center"><span class="material-symbols-outlined text-[12px] mr-1">model_training</span> Ré-entraîné en Sept 26</div>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD SPLIT -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Left: Future Map & Timeline Simulator -->
+        <div class="col-span-1 lg:col-span-2 space-y-6">
+            <div class="bg-white border border-gray-200 rounded-2xl shadow-sm flex flex-col overflow-hidden relative">
+                <!-- Toolbar overlay -->
+                <div class="absolute top-4 left-4 z-10 flex gap-2">
+                    <span class="bg-white/90 backdrop-blur border border-gray-200 px-3 py-1 rounded shadow-sm text-xs font-bold text-text-main flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[16px] text-primary">psychology</span> Projection territoriale
+                    </span>
+                </div>
+
+                <!-- Simulation Temporal Slider -->
+                <div class="absolute bottom-4 left-4 right-4 z-10 bg-white/95 backdrop-blur border border-gray-200 p-4 rounded-xl shadow-lg">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-xs font-bold text-text-main uppercase tracking-wider">Simulation du futur</span>
+                        <span id="sim-date" class="text-xs font-bold text-primary">Projection : +90 Jours</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-[10px] font-medium text-text-muted">Aujourd'hui</span>
+                        <input type="range" min="0" max="4" value="1" id="sim-slider" class="flex-1 h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-primary" oninput="updateSim()">
+                        <span class="text-[10px] font-medium text-text-muted">+5 Ans</span>
+                    </div>
+                    <div class="flex justify-between mt-2 text-[9px] text-text-muted px-8">
+                        <span>30 Jours</span>
+                        <span>90 Jours</span>
+                        <span>6 Mois</span>
+                        <span>1 An</span>
+                        <span>5 Ans</span>
+                    </div>
+                </div>
+
+                <!-- Fake Map Container -->
+                <div class="w-full min-h-[350px] md:h-[500px] bg-slate-800 relative overflow-hidden" id="predictive-map">
+                    <img src="/data/processed/anomaly_map.png" class="absolute inset-0 w-full h-full object-cover opacity-50 mix-blend-screen filter grayscale" />
+                    <!-- Simulated risk zones based on AI -->
+                    <div class="absolute top-[40%] left-[30%] w-32 h-32 bg-error/40 rounded-full blur-xl animate-pulse"></div>
+                    <div class="absolute top-[20%] left-[60%] w-24 h-24 bg-[#EA580C]/40 rounded-full blur-lg"></div>
+                    <div class="absolute top-[60%] left-[70%] w-16 h-16 bg-[#F59E0B]/40 rounded-full blur-md"></div>
+                </div>
+            </div>
+            
+            <!-- AI Responsibility Warning -->
+            <div class="bg-medium/10 border border-[#f59e0b]/30 p-3 rounded-lg flex items-start gap-3">
+                <span class="material-symbols-outlined text-[#EA580C]">info</span>
+                <div>
+                    <h4 class="text-xs font-bold text-text-main">Nature de la prévision</h4>
+                    <p class="text-[10px] text-text-muted mt-0.5">Cette prédiction représente une probabilité statistique issue de l'analyse historique (2M d'observations) et des modèles de tendances environnementales, et non une certitude absolue. Une validation humaine est obligatoire avant toute décision majeure.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Explainability & Recommendations -->
+        <div class="col-span-1 space-y-6">
+            
+            <!-- EXPLAINABILITY PANEL -->
+            <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="material-symbols-outlined text-primary">manage_search</span>
+                    <h3 class="text-sm font-bold text-text-main">Pourquoi ce risque ?</h3>
+                </div>
+                
+                <div class="p-3 bg-error/5 border border-error/10 rounded-lg mb-4">
+                    <span class="text-[10px] font-bold text-error uppercase tracking-wider">Risque Élevé à 90 jours</span>
+                    <p class="text-xs text-text-main mt-1 font-medium">Forêt classée du Banco (Zone Nord)</p>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="flex items-start gap-2">
+                        <span class="material-symbols-outlined text-critical text-[16px] shrink-0">trending_down</span>
+                        <div>
+                            <p class="text-xs font-bold text-text-main">Tendance Environnementale (30%)</p>
+                            <p class="text-[10px] text-text-muted">Le NDVI baisse de façon continue depuis 8 mois sur ce secteur.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <span class="material-symbols-outlined text-critical text-[16px] shrink-0">add_road</span>
+                        <div>
+                            <p class="text-xs font-bold text-text-main">Pression Humaine (20%)</p>
+                            <p class="text-[10px] text-text-muted">Proximité d'une nouvelle infrastructure routière &lt; 500 mètres.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <span class="material-symbols-outlined text-[#EA580C] text-[16px] shrink-0">history</span>
+                        <div>
+                            <p class="text-xs font-bold text-text-main">Historique des alertes (20%)</p>
+                            <p class="text-[10px] text-text-muted">La zone limitrophe a déjà subi une dégradation validée le mois dernier.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <span class="material-symbols-outlined text-[#F59E0B] text-[16px] shrink-0">landscape</span>
+                        <div>
+                            <p class="text-xs font-bold text-text-main">Occupation du sol & Climat (30%)</p>
+                            <p class="text-[10px] text-text-muted">Déficit pluviométrique de 15% par rapport à la moyenne saisonnière.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="mt-5 w-full bg-white border border-gray-200 hover:bg-gray-50 text-text-main py-2 rounded-[10px] text-xs font-bold transition-colors flex items-center justify-center gap-1">
+                    <span class="material-symbols-outlined text-[16px]">science</span> Voir le mode expert (Variables)
+                </button>
+            </div>
+
+            <!-- AI ADVISOR PANEL -->
+            <div class="bg-sidebar border border-sidebar rounded-2xl shadow-sm p-5 relative overflow-hidden">
+                <!-- Background decoration -->
+                <span class="material-symbols-outlined absolute -bottom-6 -right-6 text-[120px] text-white/5 rotate-12 pointer-events-none">lightbulb</span>
+                
+                <div class="flex items-center gap-2 mb-4 relative z-10">
+                    <span class="material-symbols-outlined text-primary">assistant</span>
+                    <h3 class="text-sm font-bold text-white">AI Prevention Advisor</h3>
+                </div>
+                
+                <p class="text-xs text-white/80 mb-4 relative z-10 leading-relaxed">
+                    Le moteur de prédiction recommande les actions préventives suivantes pour atténuer le risque de déforestation :
+                </p>
+                
+                <ul class="space-y-2 relative z-10">
+                    <li class="bg-white/10 border border-white/20 p-2.5 rounded-lg text-xs text-white font-medium flex items-center gap-2 backdrop-blur-sm">
+                        <span class="material-symbols-outlined text-primary text-[16px]">satellite_alt</span>
+                        Augmenter la fréquence d'imagerie
+                    </li>
+                    <li class="bg-white/10 border border-white/20 p-2.5 rounded-lg text-xs text-white font-medium flex items-center gap-2 backdrop-blur-sm">
+                        <span class="material-symbols-outlined text-primary text-[16px]">visibility</span>
+                        Créer une zone de "Surveillance Hebdomadaire"
+                    </li>
+                    <li class="bg-white/10 border border-white/20 p-2.5 rounded-lg text-xs text-white font-medium flex items-center gap-2 backdrop-blur-sm">
+                        <span class="material-symbols-outlined text-error text-[16px]">directions_run</span>
+                        Planifier une mission préventive (UAV)
+                    </li>
+                </ul>
+                
+                <button class="mt-4 w-full bg-primary hover:bg-primary/90 text-white py-2.5 rounded-[10px] text-xs font-bold transition-colors flex items-center justify-center gap-2 relative z-10">
+                    <span class="material-symbols-outlined text-[16px]">task_alt</span> Appliquer les recommandations
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const periods = ["30 Jours", "90 Jours", "6 Mois", "1 An", "5 Ans"];
+    function updateSim() {
+        const slider = document.getElementById('sim-slider');
+        const text = document.getElementById('sim-date');
+        text.innerText = "Projection : +" + periods[slider.value];
+        
+        // Simuler un changement visuel sur la carte
+        const map = document.getElementById('predictive-map');
+        const intensity = (parseInt(slider.value) + 1) * 10;
+        map.style.filter = `hue-rotate(${intensity}deg)`;
+    }
+</script>
+{% endblock %}

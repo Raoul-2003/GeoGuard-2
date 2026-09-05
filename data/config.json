@@ -1,0 +1,10 @@
+{
+    "org_name": "GeoGuard Admin",
+    "timezone": "UTC",
+    "diff_threshold": 1500,
+    "alert_threshold": 2,
+    "ai_model": "v1_basic",
+    "cloud_detection": true,
+    "scan_frequency": "daily",
+    "notification_emails": "admin@geoguard.local"
+}

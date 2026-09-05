@@ -1,0 +1,268 @@
+{% set active_page = "zones" %}
+{% extends "base.html" %}
+
+{% block topbar %}
+<header class="bg-white border-b border-gray-200 hidden md:flex flex-col md:flex-row md:justify-between md:items-center gap-4 px-6 h-16 w-full sticky top-0 z-20">
+    <div class="flex items-center gap-3">
+        <a href="/zones" class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-text-muted transition-colors">
+            <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+        </a>
+        <div class="flex flex-col">
+            <div class="flex items-center gap-2">
+                <span class="bg-error/10 border border-error/30 text-error text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded">Priorité Critique</span>
+                <h1 class="text-lg font-bold text-text-main leading-tight">Parc National du Banco</h1>
+            </div>
+            <div class="flex items-center gap-2 text-[11px] text-text-muted">
+                <span>Forêt Protégée</span> • <span>3 500 ha</span> • <span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-[12px]">person</span> R. Kouassi</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Action Bar Contextuelle -->
+    <div class="flex items-center gap-2 bg-gray-50 p-1 rounded-xl border border-gray-200">
+        <button class="bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 shadow-sm hover:bg-primary/90">
+            <span class="material-symbols-outlined text-[16px]">radar</span> Analyser Zone
+        </button>
+        <div class="w-px h-4 bg-gray-300"></div>
+        <button class="hover:bg-white text-text-main px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 shadow-sm border border-transparent hover:border-gray-200">
+            <span class="material-symbols-outlined text-info text-[16px]">compare</span> Comparer
+        </button>
+        <div class="w-px h-4 bg-gray-300"></div>
+        <button class="hover:bg-white text-text-main px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 shadow-sm border border-transparent hover:border-gray-200">
+            <span class="material-symbols-outlined text-text-muted text-[16px]">description</span> Créer Rapport
+        </button>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<!-- Include Chart.js for Environmental graphs -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="flex flex-col h-[calc(100vh-64px)] w-full overflow-hidden bg-slate-50">
+
+    <!-- Progressive Disclosure Tabs -->
+    <div class="w-full bg-white border-b border-gray-200 px-6 pt-3 flex gap-6 shrink-0 z-10">
+        <button class="pb-3 border-b-2 border-primary text-primary font-bold text-sm transition-colors" onclick="switchTab('tab-resume', this)">
+            1. Résumé <span class="text-[10px] font-normal text-text-muted ml-1">(Santé globale)</span>
+        </button>
+        <button class="pb-3 border-b-2 border-transparent text-text-muted hover:text-text-main font-bold text-sm transition-colors" onclick="switchTab('tab-env', this)">
+            2. Environnement <span class="text-[10px] font-normal text-text-muted ml-1">(Profil Scientifique)</span>
+        </button>
+        <button class="pb-3 border-b-2 border-transparent text-text-muted hover:text-text-main font-bold text-sm transition-colors" onclick="switchTab('tab-historique', this)">
+            3. Historique & Règles <span class="text-[10px] font-normal text-text-muted ml-1">(IA Monitoring)</span>
+        </button>
+    </div>
+
+    <!-- Tab Contents -->
+    <div class="flex-1 overflow-y-auto p-6 relative custom-scrollbar">
+        
+        <!-- LEVEL 1 : RÉSUMÉ -->
+        <div id="tab-resume" class="tab-content max-w-5xl mx-auto space-y-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Territory Health Score -->
+                <div class="col-span-1 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col items-center justify-center relative overflow-hidden">
+                    <div class="absolute top-0 w-full h-1 bg-error"></div>
+                    <h3 class="text-xs font-bold text-text-muted uppercase tracking-wider mb-4 text-center">Health Score</h3>
+                    <div class="relative w-32 h-32 flex items-center justify-center mb-2">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="#f1f5f9" stroke-width="10"></circle>
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="#dc2626" stroke-width="10" stroke-dasharray="282.7" stroke-dashoffset="158"></circle>
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span class="text-4xl font-black text-error leading-none">44</span>
+                            <span class="text-[10px] text-text-muted font-bold">/100</span>
+                        </div>
+                    </div>
+                    <span class="bg-error/10 text-error px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Dégradation</span>
+                </div>
+
+                <!-- GeoGuard AI Summary & Actions -->
+                <div class="col-span-2 flex flex-col gap-4">
+                    <div class="bg-sidebar border border-sidebar rounded-xl p-5 shadow-sm relative overflow-hidden flex-1">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-primary/20 rounded-bl-full pointer-events-none"></div>
+                        <h3 class="text-xs font-bold text-primary uppercase tracking-wider mb-2 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[18px]">psychology</span> Analyse Territoriale IA
+                        </h3>
+                        <p class="text-sm text-white/90 leading-relaxed mb-4">
+                            "Cette zone présente une <strong>pression humaine croissante</strong> (Indice: 72/100) avec une diminution progressive du couvert végétal depuis 18 mois, particulièrement sur la lisière Ouest. 3 alertes critiques de déforestation sont actuellement actives."
+                        </p>
+                        <div class="flex items-center gap-3">
+                            <span class="text-[10px] text-white/50 bg-white/10 px-2 py-1 rounded">Source: GeoGuard AI Engine</span>
+                            <span class="text-[10px] text-white/50 bg-white/10 px-2 py-1 rounded">Dernière analyse: Auj. 10:30</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-4">
+                        <button class="flex-1 bg-white border border-gray-200 hover:border-error hover:text-error text-text-main p-3 rounded-xl shadow-sm transition-colors flex items-center justify-center gap-2 font-bold text-xs">
+                            <span class="material-symbols-outlined">warning</span> Voir 3 Alertes
+                        </button>
+                        <button class="flex-1 bg-white border border-gray-200 hover:border-primary hover:text-primary text-text-main p-3 rounded-xl shadow-sm transition-colors flex items-center justify-center gap-2 font-bold text-xs">
+                            <span class="material-symbols-outlined">directions_run</span> Missions liées (1)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mini Map -->
+            <div class="w-full h-64 bg-slate-900 rounded-2xl border border-gray-200 shadow-sm relative overflow-hidden">
+                <img src="/data/processed/anomaly_map.png" class="absolute inset-0 w-full h-full object-cover opacity-60" />
+                <div class="absolute top-4 left-4 bg-white/90 backdrop-blur p-2 rounded text-[10px] font-bold text-text-main shadow-sm flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span> Niveau 4 : Surveillance Continue
+                </div>
+            </div>
+        </div>
+
+        <!-- LEVEL 2 : ENVIRONNEMENT (Hidden) -->
+        <div id="tab-env" class="tab-content hidden max-w-5xl mx-auto space-y-6">
+            <h2 class="text-sm font-bold text-text-main mb-4 uppercase tracking-wider flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">eco</span> Profil Scientifique
+            </h2>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white p-4 border border-gray-200 rounded-xl shadow-sm">
+                    <span class="text-[10px] text-text-muted font-bold uppercase block mb-1">Couverture Végétale (NDVI)</span>
+                    <span class="text-2xl font-black text-error">0.52 <span class="text-[12px] text-text-muted font-normal">(Baisse)</span></span>
+                </div>
+                <div class="bg-white p-4 border border-gray-200 rounded-xl shadow-sm">
+                    <span class="text-[10px] text-text-muted font-bold uppercase block mb-1">Indice Eau (NDWI)</span>
+                    <span class="text-2xl font-black text-primary">0.38 <span class="text-[12px] text-text-muted font-normal">(Stable)</span></span>
+                </div>
+                <div class="bg-white p-4 border border-gray-200 rounded-xl shadow-sm">
+                    <span class="text-[10px] text-text-muted font-bold uppercase block mb-1">Altitude Moy.</span>
+                    <span class="text-2xl font-black text-text-main">45m</span>
+                </div>
+                <div class="bg-white p-4 border border-gray-200 rounded-xl shadow-sm">
+                    <span class="text-[10px] text-text-muted font-bold uppercase block mb-1">Biodiversité</span>
+                    <span class="text-2xl font-black text-info">Critique</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                    <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-4">Indice de Pression Territoriale</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs font-bold mb-1"><span>Pression Urbaine</span> <span class="text-error">Elevée</span></div>
+                            <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden"><div class="bg-error h-full w-[85%]"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs font-bold mb-1"><span>Pression Agricole</span> <span class="text-[#EA580C]">Modérée</span></div>
+                            <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden"><div class="bg-[#EA580C] h-full w-[45%]"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs font-bold mb-1"><span>Réseau Routier</span> <span class="text-primary">Faible</span></div>
+                            <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden"><div class="bg-primary h-full w-[15%]"></div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                    <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Évolution NDVI (2 ans)</h3>
+                    <div class="h-40 w-full relative"><canvas id="chart-ndvi"></canvas></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LEVEL 3 : HISTORIQUE & RÈGLES (Hidden) -->
+        <div id="tab-historique" class="tab-content hidden max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Timeline -->
+            <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                <h2 class="text-sm font-bold text-text-main mb-6 uppercase tracking-wider">Timeline Territoriale</h2>
+                <div class="relative border-l-2 border-gray-100 ml-3 space-y-8">
+                    <div class="relative pl-6">
+                        <span class="absolute -left-2 top-0.5 w-3.5 h-3.5 rounded-full bg-gray-300 border-2 border-white"></span>
+                        <p class="text-xs font-bold text-text-main">Création de la zone (État initial)</p>
+                        <p class="text-[10px] text-text-muted">Janvier 2018</p>
+                    </div>
+                    <div class="relative pl-6">
+                        <span class="absolute -left-2 top-0.5 w-3.5 h-3.5 rounded-full bg-[#EA580C] border-2 border-white"></span>
+                        <p class="text-xs font-bold text-text-main">Premiers signes de pression humaine</p>
+                        <p class="text-[10px] text-text-muted">Mars 2021</p>
+                    </div>
+                    <div class="relative pl-6">
+                        <span class="absolute -left-2 top-0.5 w-3.5 h-3.5 rounded-full bg-error border-2 border-white"></span>
+                        <p class="text-xs font-bold text-text-main">Passage en "Priorité Critique"</p>
+                        <p class="text-[10px] text-text-muted">Juin 2024</p>
+                    </div>
+                    <div class="relative pl-6">
+                        <span class="absolute -left-2 top-0.5 w-3.5 h-3.5 rounded-full bg-primary border-2 border-white animate-pulse"></span>
+                        <p class="text-xs font-bold text-primary">Situation Actuelle (Monitoring Actif)</p>
+                        <p class="text-[10px] text-text-muted">Aujourd'hui</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Smart Monitoring Rules -->
+            <div class="bg-white border border-primary/30 rounded-xl p-6 shadow-sm">
+                <h2 class="text-sm font-bold text-primary mb-6 uppercase tracking-wider flex items-center gap-2">
+                    <span class="material-symbols-outlined">smart_toy</span> Smart Monitoring Rules
+                </h2>
+                <p class="text-xs text-text-muted mb-4">Ces règles d'IA s'exécutent automatiquement en continu sur cette zone spécifique.</p>
+                
+                <div class="space-y-3">
+                    <div class="p-3 bg-gray-50 border border-gray-200 rounded-lg flex items-center gap-3">
+                        <span class="text-[10px] font-mono font-bold text-error">SI</span>
+                        <span class="text-xs font-medium text-text-main">NDVI baisse > 15%</span>
+                        <span class="text-[10px] font-mono font-bold text-primary ml-auto flex items-center gap-1">ALORS <span class="material-symbols-outlined text-[14px]">arrow_right_alt</span> Créer Analyse</span>
+                    </div>
+                    <div class="p-3 bg-gray-50 border border-gray-200 rounded-lg flex items-center gap-3">
+                        <span class="text-[10px] font-mono font-bold text-error">SI</span>
+                        <span class="text-xs font-medium text-text-main">Anomalie thermique</span>
+                        <span class="text-[10px] font-mono font-bold text-primary ml-auto flex items-center gap-1">ALORS <span class="material-symbols-outlined text-[14px]">arrow_right_alt</span> Alerte Incendie</span>
+                    </div>
+                    <div class="p-3 bg-gray-50 border border-gray-200 rounded-lg flex items-center gap-3">
+                        <span class="text-[10px] font-mono font-bold text-error">SI</span>
+                        <span class="text-xs font-medium text-text-main">Health Score < 50</span>
+                        <span class="text-[10px] font-mono font-bold text-primary ml-auto flex items-center gap-1">ALORS <span class="material-symbols-outlined text-[14px]">arrow_right_alt</span> Notifier Directeur</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function switchTab(tabId, btnElement) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        document.getElementById(tabId).classList.remove('hidden');
+        
+        const buttons = btnElement.parentElement.querySelectorAll('button');
+        buttons.forEach(btn => {
+            btn.classList.remove('border-primary', 'text-primary');
+            btn.classList.add('border-transparent', 'text-text-muted');
+        });
+        
+        btnElement.classList.remove('border-transparent', 'text-text-muted');
+        btnElement.classList.add('border-primary', 'text-primary');
+    }
+
+    // Chart NDVI (Onglet 2)
+    const ctx = document.getElementById('chart-ndvi').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['2024-T1', '2024-T2', '2024-T3', '2024-T4', '2025-T1', '2025-T2', '2025-T3', '2026-T1'],
+            datasets: [{
+                label: 'NDVI Moyen',
+                data: [0.82, 0.81, 0.79, 0.75, 0.72, 0.65, 0.58, 0.52],
+                borderColor: '#dc2626',
+                backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { min: 0.4, max: 1.0, grid: { color: '#f1f5f9' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+</script>
+{% endblock %}

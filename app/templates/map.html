@@ -1,0 +1,371 @@
+{% set active_page = "map" %}
+{% extends "base.html" %}
+
+{% block topbar %}
+<!-- Custom GIS Header -->
+<header class="bg-white border-b border-gray-200 px-6 h-16 flex items-center justify-between z-10 sticky top-0 shrink-0">
+    <div class="flex items-center gap-6">
+        <div class="flex flex-col">
+            <h1 class="text-lg font-bold text-text-main leading-tight">Carte opérationnelle</h1>
+            <p class="text-[11px] text-text-muted">Supervision géospatiale temps réel des territoires</p>
+        </div>
+        
+        <!-- Search Bar -->
+        <div class="bg-white-variant/50 border border-gray-200 rounded-md flex items-center px-3 h-9 w-[400px] focus-within:ring-1 focus-within:ring-primary focus-within:border-primary transition-all ml-4">
+            <span class="material-symbols-outlined text-text-muted mr-2 text-[18px]">search</span>
+            <input class="bg-transparent border-none p-0 flex-1 text-sm font-medium placeholder-on-surface-variant/70 focus:ring-0 outline-none" placeholder="Rechercher une zone, coordonnée, alerte..." type="text"/>
+            <button class="text-primary hover:text-sidebar transition-colors" title="Recherche IA Naturelle">
+                <span class="material-symbols-outlined text-[18px]">psychology</span>
+            </button>
+        </div>
+    </div>
+    
+    <div class="flex items-center gap-3">
+        <button class="bg-gray-50 hover:bg-white-variant text-text-main border border-gray-200 rounded px-3 py-1.5 text-xs font-medium flex items-center gap-1 transition-colors">
+            <span class="material-symbols-outlined text-[16px]">sensors</span> Mode Surveillance Live
+        </button>
+        <button class="bg-gray-50 hover:bg-white-variant text-text-main border border-gray-200 rounded px-3 py-1.5 text-xs font-medium flex items-center gap-1 transition-colors">
+            <span class="material-symbols-outlined text-[16px]">science</span> Analyse spatiale
+        </button>
+        <button class="bg-gray-50 hover:bg-white-variant text-text-main border border-gray-200 rounded px-3 py-1.5 text-xs font-medium flex items-center gap-1 transition-colors" onclick="document.documentElement.requestFullscreen()">
+            <span class="material-symbols-outlined text-[16px]">fullscreen</span> Plein écran
+        </button>
+        <button class="bg-primary hover:bg-sidebar text-white rounded px-3 py-1.5 text-xs font-medium flex items-center gap-1 transition-colors">
+            <span class="material-symbols-outlined text-[16px]">file_download</span> Exporter
+        </button>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<!-- Include Leaflet & Turf.js -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+
+<div class="flex h-[calc(100vh-64px)] w-full overflow-hidden bg-white-variant relative">
+    
+    <!-- MAIN MAP AREA -->
+    <div class="flex-1 relative flex flex-col min-w-0" id="map-container">
+        <!-- The Map -->
+        <div id="map" class="absolute inset-0 w-full h-full z-0"></div>
+
+        <!-- GIS Toolbars (Floating left) -->
+        <div class="absolute top-4 left-4 z-10 flex flex-col gap-2">
+            <!-- Navigation -->
+            <div class="bg-white/90 backdrop-blur border border-gray-200 rounded-md shadow-sm flex flex-col overflow-hidden">
+                <button onclick="map.zoomIn()" class="p-2 text-text-main hover:bg-white-variant hover:text-primary transition-colors border-b border-gray-200" title="Zoom In"><span class="material-symbols-outlined text-[20px]">add</span></button>
+                <button onclick="map.zoomOut()" class="p-2 text-text-main hover:bg-white-variant hover:text-primary transition-colors border-b border-gray-200" title="Zoom Out"><span class="material-symbols-outlined text-[20px]">remove</span></button>
+                <button onclick="map.setView([5.3453, -4.0244], 12)" class="p-2 text-text-main hover:bg-white-variant hover:text-primary transition-colors" title="Retour vue initiale"><span class="material-symbols-outlined text-[20px]">home</span></button>
+            </div>
+            <!-- Selection & Measure Tools -->
+            <div class="bg-white/90 backdrop-blur border border-gray-200 rounded-md shadow-sm flex flex-col overflow-hidden mt-2">
+                <button class="p-2 text-text-main hover:bg-white-variant hover:text-primary transition-colors border-b border-gray-200" title="Mesurer distance"><span class="material-symbols-outlined text-[20px]">straighten</span></button>
+                <button class="p-2 text-text-main hover:bg-white-variant hover:text-primary transition-colors border-b border-gray-200" title="Mesurer surface"><span class="material-symbols-outlined text-[20px]">square_foot</span></button>
+                <button class="p-2 text-text-main hover:bg-white-variant hover:text-primary transition-colors" title="Buffer (Zone tampon)"><span class="material-symbols-outlined text-[20px]">radar</span></button>
+            </div>
+        </div>
+
+        <!-- Floating Layers Panel (Left next to tools) -->
+        <div class="absolute top-4 left-16 z-10 w-64 bg-white/95 backdrop-blur border border-gray-200 rounded-[10px] shadow-md flex flex-col max-h-[calc(100%-120px)] overflow-hidden">
+            <div class="bg-gray-50 px-3 py-2 border-b border-gray-200 flex items-center justify-between">
+                <span class="text-xs font-bold text-text-main uppercase tracking-wider">GESTION DES COUCHES</span>
+                <button class="text-text-muted hover:text-text-main"><span class="material-symbols-outlined text-[16px]">layers</span></button>
+            </div>
+            <div class="overflow-y-auto p-3 space-y-4 text-sm custom-scrollbar">
+                <!-- Category 1 -->
+                <div>
+                    <h4 class="text-[10px] font-bold text-primary mb-2 uppercase">1. Territoires</h4>
+                    <div class="space-y-1.5">
+                        <label class="flex items-center cursor-pointer group"><input type="checkbox" checked class="rounded border-gray-200 text-primary focus:ring-primary mr-2 h-3.5 w-3.5"><span class="text-text-main text-xs font-medium">Pays / Régions</span></label>
+                        <label class="flex items-center cursor-pointer group"><input type="checkbox" checked class="rounded border-gray-200 text-primary focus:ring-primary mr-2 h-3.5 w-3.5"><span class="text-text-main text-xs">Zones protégées</span></label>
+                    </div>
+                </div>
+                <!-- Category 2 -->
+                <div>
+                    <h4 class="text-[10px] font-bold text-primary mb-2 uppercase">2. Surveillance</h4>
+                    <div class="space-y-1.5">
+                        <label class="flex items-center cursor-pointer group"><input type="checkbox" checked class="rounded border-gray-200 text-secondary focus:ring-secondary mr-2 h-3.5 w-3.5"><span class="text-text-main text-xs">Zones sous observation</span></label>
+                        <label class="flex items-center cursor-pointer group"><input id="heatmap-toggle" type="checkbox" checked class="rounded border-gray-200 text-critical focus:ring-error mr-2 h-3.5 w-3.5"><span class="text-critical font-bold text-xs">Heatmap des risques</span></label>
+                    </div>
+                </div>
+                <!-- Category 3 -->
+                <div>
+                    <h4 class="text-[10px] font-bold text-primary mb-2 uppercase">3. IA & Détections</h4>
+                    <div class="space-y-1.5">
+                        <label class="flex items-center cursor-pointer group"><input type="checkbox" checked id="alerts-toggle" class="rounded border-gray-200 text-critical focus:ring-error mr-2 h-3.5 w-3.5"><span class="text-text-main text-xs font-medium">Alertes Actives</span></label>
+                        <label class="flex items-center cursor-pointer group"><input type="checkbox" class="rounded border-gray-200 text-medium focus:ring-[#f59e0b] mr-2 h-3.5 w-3.5"><span class="text-text-main text-xs">Polygones de changement</span></label>
+                    </div>
+                </div>
+                <!-- Category 4 -->
+                <div>
+                    <h4 class="text-[10px] font-bold text-primary mb-2 uppercase">4. Fonds Satellites</h4>
+                    <div class="space-y-1.5">
+                        <label class="flex items-center cursor-pointer group"><input type="radio" name="basemap" value="dark" checked class="text-primary focus:ring-primary mr-2 h-3.5 w-3.5"><span class="text-text-main text-xs">Satellite Sombre (Pro)</span></label>
+                        <label class="flex items-center cursor-pointer group"><input type="radio" name="basemap" value="light" class="text-primary focus:ring-primary mr-2 h-3.5 w-3.5"><span class="text-text-main text-xs">Carte Claire</span></label>
+                    </div>
+                </div>
+                <!-- Category 5 -->
+                <div>
+                    <h4 class="text-[10px] font-bold text-primary mb-2 uppercase">5. Terrain</h4>
+                    <div class="space-y-1.5">
+                        <label class="flex items-center cursor-pointer group"><input type="checkbox" class="rounded border-gray-200 text-info focus:ring-info mr-2 h-3.5 w-3.5"><span class="text-text-main text-xs">Missions actives</span></label>
+                        <label class="flex items-center cursor-pointer group"><input type="checkbox" class="rounded border-gray-200 text-info focus:ring-info mr-2 h-3.5 w-3.5"><span class="text-text-main text-xs">Points GPS agents</span></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GeoGuard Map Assistant -->
+        <div class="absolute bottom-10 right-4 z-10">
+            <button class="w-12 h-12 bg-primary rounded-full shadow-lg flex items-center justify-center text-white hover:bg-sidebar transition-colors">
+                <span class="material-symbols-outlined">smart_toy</span>
+            </button>
+        </div>
+
+        <!-- Bottom Timeline (Comparaison Temporelle) -->
+        <div class="absolute bottom-10 left-16 right-20 z-10 bg-white/90 backdrop-blur border border-gray-200 rounded-[10px] shadow-sm p-3 flex items-center gap-4 hidden" id="timeline-panel">
+            <span class="text-xs font-bold text-text-main uppercase tracking-wider flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">history</span> Retour dans le temps</span>
+            <div class="flex-1 flex items-center gap-2">
+                <span class="text-xs font-medium text-text-muted">2022</span>
+                <input type="range" min="0" max="100" value="100" class="flex-1 h-1 bg-white-variant rounded-[10px] appearance-none cursor-pointer accent-primary">
+                <span class="text-xs font-medium text-primary font-bold">2026</span>
+            </div>
+            <button class="bg-gray-50 hover:bg-white-variant text-text-main border border-gray-200 rounded px-3 py-1 text-xs font-medium flex items-center gap-1 transition-colors" onclick="document.getElementById('timeline-panel').classList.add('hidden')">
+                <span class="material-symbols-outlined text-[16px]">close</span>
+            </button>
+        </div>
+
+        <!-- Bottom Info Bar -->
+        <div class="absolute bottom-0 left-0 w-full h-8 bg-sidebar/90 backdrop-blur text-white px-4 flex items-center justify-between text-[10px] z-10 border-t border-white/10">
+            <div class="flex items-center gap-4">
+                <span><strong>Source:</strong> Sentinel-2 L2A</span>
+                <span><strong>Date:</strong> 04 Septembre 2026</span>
+                <span><strong>Précision:</strong> 10m</span>
+                <span><strong>Traitement:</strong> GeoGuard AI Engine V2</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="flex items-center gap-1 text-primary"><span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span> Système Opérationnel</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT ANALYSIS PANEL (Toggled on click) -->
+    <div id="right-panel" class="hidden w-[420px] h-full bg-white border-l border-gray-200 flex-col z-20 shrink-0 shadow-[-4px_0_15px_rgba(0,0,0,0.05)] overflow-y-auto transform translate-x-0 transition-transform">
+        <!-- Close button -->
+        <div class="absolute top-4 right-4 z-30">
+            <button onclick="closePanel()" class="w-8 h-8 bg-white border border-gray-200 rounded-full flex items-center justify-center hover:bg-gray-50">
+                <span class="material-symbols-outlined text-[16px]">close</span>
+            </button>
+        </div>
+
+        <!-- Section 1: Informations générales -->
+        <div class="p-6 border-b border-gray-200 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-critical"></div>
+            <div class="flex items-center gap-2 mb-3">
+                <span id="panel-level" class="bg-critical/10 text-critical border border-critical/20 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">Alerte Critique</span>
+                <span class="text-[10px] text-text-muted font-mono">ID: GG-2026-892</span>
+            </div>
+            <h2 id="panel-title" class="text-xl font-bold text-text-main leading-tight mb-2">Forêt du Banco - Déforestation</h2>
+            <div class="text-xs text-text-muted space-y-1 font-mono">
+                <p>Lat: <span id="panel-lat">5.3892</span> | Lng: <span id="panel-lng">-4.0501</span></p>
+            </div>
+        </div>
+
+        <!-- Section 2: Analyse IA & Risque -->
+        <div class="p-6 border-b border-gray-200 bg-white-variant/30">
+            <h3 class="text-[10px] font-bold text-text-main uppercase tracking-wider mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-primary">psychology</span> Décision Intelligence Artificielle</h3>
+            
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="bg-white border border-gray-200 p-3 rounded-lg">
+                    <span class="text-[10px] text-text-muted uppercase">Type probable</span>
+                    <p class="font-bold text-text-main mt-1 text-sm">Déforestation</p>
+                </div>
+                <div class="bg-white border border-gray-200 p-3 rounded-lg">
+                    <span class="text-[10px] text-text-muted uppercase">Confiance IA</span>
+                    <p class="font-bold text-primary mt-1 text-sm">94 %</p>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between mt-4">
+                <div class="flex items-end gap-1">
+                    <span class="text-4xl font-black text-critical leading-none">87</span>
+                    <span class="text-sm font-medium text-text-muted mb-1">/100</span>
+                </div>
+                <div class="text-right">
+                    <span class="block text-sm font-bold text-critical uppercase">Risque Critique</span>
+                </div>
+            </div>
+            <div class="mt-3 w-full h-2 bg-gray-50 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-secondary via-[#f59e0b] to-error w-[87%]"></div>
+            </div>
+        </div>
+
+        <!-- Section 3: Preuves (Explicabilité) -->
+        <div class="p-6 border-b border-gray-200">
+            <h3 class="text-[10px] font-bold text-text-main uppercase tracking-wider mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-primary">manage_search</span> Preuves Analytiques</h3>
+            
+            <div class="space-y-3">
+                <div class="flex items-start gap-3">
+                    <div class="w-6 h-6 rounded bg-critical/10 text-critical flex items-center justify-center shrink-0 mt-0.5"><span class="material-symbols-outlined text-[14px]">eco</span></div>
+                    <div>
+                        <p class="text-xs font-bold text-text-main">Chute du NDVI (-18%)</p>
+                        <p class="text-[10px] text-text-muted mt-0.5">Perte massive de couverture végétale détectée entre août et septembre.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="w-6 h-6 rounded bg-critical/10 text-critical flex items-center justify-center shrink-0 mt-0.5"><span class="material-symbols-outlined text-[14px]">square_foot</span></div>
+                    <div>
+                        <p class="text-xs font-bold text-text-main">Surface affectée: 12.4 ha</p>
+                        <p class="text-[10px] text-text-muted mt-0.5">La taille de la zone dépasse le seuil critique d'alerte automatique (5 ha).</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="w-6 h-6 rounded bg-[#f59e0b]/10 text-[#f59e0b] flex items-center justify-center shrink-0 mt-0.5"><span class="material-symbols-outlined text-[14px]">security</span></div>
+                    <div>
+                        <p class="text-xs font-bold text-text-main">Zone Protégée</p>
+                        <p class="text-[10px] text-text-muted mt-0.5">L'anomalie se situe à l'intérieur des limites du Parc National.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Actions Opérationnelles -->
+        <div class="p-6 flex-1 flex flex-col justify-end space-y-3">
+            <button class="w-full bg-sidebar hover:bg-sidebar/90 text-white py-2.5 px-4 rounded-[10px] transition-colors font-bold text-sm flex items-center justify-center gap-2 shadow-sm">
+                <span class="material-symbols-outlined text-[18px]">directions_run</span>
+                Créer Mission Terrain
+            </button>
+            <div class="flex gap-2">
+                <button class="flex-1 bg-white border border-gray-200 hover:bg-gray-50 text-text-main py-2 rounded-[10px] text-xs font-bold transition-colors flex items-center justify-center gap-1">
+                    <span class="material-symbols-outlined text-[16px]">query_stats</span> Analyser
+                </button>
+                <button class="flex-1 bg-white border border-gray-200 hover:bg-gray-50 text-text-main py-2 rounded-[10px] text-xs font-bold transition-colors flex items-center justify-center gap-1">
+                    <span class="material-symbols-outlined text-[16px]">description</span> Rapport
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    /* CartoDB Dark Matter map adjustments */
+    .leaflet-container {
+        background-color: #0f172a;
+        font-family: 'Inter', sans-serif;
+    }
+    .leaflet-popup-content-wrapper {
+        border-radius: 8px;
+        padding: 0;
+        overflow: hidden;
+    }
+    .leaflet-popup-content {
+        margin: 0;
+    }
+    /* Custom Alert Markers */
+    .marker-critique { background-color: #DC2626; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(220,38,38,0.8); animation: pulse-critique 2s infinite; }
+    .marker-haute { background-color: #EA580C; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(234,88,12,0.8); }
+    .marker-moyenne { background-color: #F59E0B; border: 2px solid white; border-radius: 50%; }
+    .marker-faible { background-color: #16A34A; border: 2px solid white; border-radius: 50%; }
+    
+    @keyframes pulse-critique {
+        0% { box-shadow: 0 0 0 0 rgba(220,38,38, 0.7); }
+        70% { box-shadow: 0 0 0 15px rgba(220,38,38, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(220,38,38, 0); }
+    }
+</style>
+
+<script>
+    // Initialize Mapbox-style Dark map via Leaflet
+    const map = L.map('map', {
+        zoomControl: false // Using custom controls
+    }).setView([5.3453, -4.0244], 12); // Centered on Abidjan
+
+    // Dark Matter basemap (Professional SIG look)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 20
+    }).addTo(map);
+
+    // Mock Data for Alerts
+    const alerts = [
+        { id: "GG-001", lat: 5.3892, lng: -4.0501, type: "Déforestation", level: "critique", score: 87, class: "marker-critique", title: "Forêt du Banco - Déforestation" },
+        { id: "GG-002", lat: 5.3621, lng: -3.9822, type: "Urbanisation", level: "haute", score: 72, class: "marker-haute", title: "Cocody - Extension urbaine" },
+        { id: "GG-003", lat: 5.3144, lng: -4.0150, type: "Pollution", level: "moyenne", score: 55, class: "marker-moyenne", title: "Lagune - Pollution suspectée" },
+        { id: "GG-004", lat: 5.4120, lng: -3.9510, type: "Incendie", level: "critique", score: 92, class: "marker-critique", title: "Bingerville - Incendie actif" },
+        { id: "GG-005", lat: 5.3210, lng: -4.0890, type: "Activité", level: "faible", score: 30, class: "marker-faible", title: "Yopougon - Mouvement terrain" }
+    ];
+
+    let markers = [];
+
+    // Add Markers
+    alerts.forEach(alert => {
+        const icon = L.divIcon({ className: alert.class, iconSize: [16, 16] });
+        const marker = L.marker([alert.lat, alert.lng], { icon: icon }).addTo(map);
+        
+        marker.on('click', () => {
+            openPanel(alert);
+            map.flyTo([alert.lat, alert.lng], 14, { duration: 1.5 });
+        });
+        markers.push(marker);
+    });
+
+    // Heatmap Layer (Turf/Leaflet.heat simulation)
+    const heatData = alerts.map(a => [a.lat, a.lng, a.score / 100 * 50]); // Intensify score
+    // add some noise for heatmap
+    for(let i=0; i<20; i++) {
+        heatData.push([5.3453 + (Math.random()-0.5)*0.1, -4.0244 + (Math.random()-0.5)*0.1, Math.random() * 20]);
+    }
+    
+    const heat = L.heatLayer(heatData, {
+        radius: 35,
+        blur: 25,
+        gradient: {0.4: '#16A34A', 0.6: '#F59E0B', 0.8: '#EA580C', 1.0: '#DC2626'}
+    }).addTo(map);
+
+    // Toggle Heatmap
+    document.getElementById('heatmap-toggle').addEventListener('change', (e) => {
+        if(e.target.checked) map.addLayer(heat);
+        else map.removeLayer(heat);
+    });
+
+    // Toggle Alerts
+    document.getElementById('alerts-toggle').addEventListener('change', (e) => {
+        if(e.target.checked) {
+            markers.forEach(m => map.addLayer(m));
+        } else {
+            markers.forEach(m => map.removeLayer(m));
+        }
+    });
+
+    // Panel interaction
+    function openPanel(alert) {
+        const panel = document.getElementById('right-panel');
+        document.getElementById('panel-title').innerText = alert.title;
+        document.getElementById('panel-lat').innerText = alert.lat.toFixed(4);
+        document.getElementById('panel-lng').innerText = alert.lng.toFixed(4);
+        
+        const levelBadge = document.getElementById('panel-level');
+        levelBadge.innerText = "Alerte " + alert.level;
+        
+        // Reset colors
+        levelBadge.className = "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border";
+        if(alert.level === 'critique') levelBadge.classList.add('bg-critical/10', 'text-critical', 'border-critical/20');
+        else if(alert.level === 'haute') levelBadge.classList.add('bg-[#EA580C]/10', 'text-[#EA580C]', 'border-[#EA580C]/20');
+        else if(alert.level === 'moyenne') levelBadge.classList.add('bg-[#F59E0B]/10', 'text-[#F59E0B]', 'border-[#F59E0B]/20');
+        else levelBadge.classList.add('bg-primary/10', 'text-primary', 'border-primary/20');
+
+        panel.classList.remove('hidden');
+        panel.classList.add('flex');
+    }
+
+    function closePanel() {
+        const panel = document.getElementById('right-panel');
+        panel.classList.add('hidden');
+        panel.classList.remove('flex');
+    }
+</script>
+{% endblock %}
