@@ -28,7 +28,7 @@
 <div class="p-6 w-full mx-auto space-y-6 flex flex-col h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar bg-slate-50 relative">
 
     <!-- KPI AUDIT (EXACTEMENT 6 CARTES) -->
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 shrink-0">
+    <div class="grid grid-cols-1 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 shrink-0">
         <!-- KPI 1 -->
         <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
             <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Actions enregistrées</h3>
@@ -69,7 +69,7 @@
         
         <!-- GAUCHE : JOURNAL DES ACTIVITÉS (60%) -->
         <div class="w-full lg:w-[60%] bg-white border border-gray-200 rounded-2xl shadow-sm flex flex-col overflow-hidden">
-            <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center shrink-0">
+            <div class="p-4 border-b border-gray-200 bg-gray-50 flex flex-col md:flex-row md:justify-between md:items-center gap-4 shrink-0">
                 <h2 class="text-sm font-bold text-text-main uppercase tracking-wider flex items-center gap-2">
                     <span class="material-symbols-outlined text-[18px]">list_alt</span> Journal d'Audit (Audit Log)
                 </h2>
@@ -173,7 +173,7 @@
             
             <!-- AI Governance Center -->
             <div class="bg-white border border-gray-200 rounded-2xl shadow-sm flex flex-col">
-                <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                <div class="p-4 border-b border-gray-200 bg-gray-50 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                     <h2 class="text-sm font-bold text-text-main uppercase tracking-wider flex items-center gap-2">
                         <span class="material-symbols-outlined text-[18px]">psychology</span> Gouvernance des Modèles IA
                     </h2>
@@ -244,7 +244,7 @@
 <div id="traceability-slideover-backdrop" class="fixed inset-0 bg-black/40 z-[90] hidden transition-opacity opacity-0 backdrop-blur-sm" onclick="closeTraceabilitySlideover()"></div>
 
 <!-- Drawer -->
-<div id="traceability-slideover" class="fixed top-0 right-0 h-screen w-full md:w-[500px] bg-slate-50 shadow-2xl z-[100] transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col border-l border-gray-200">
+<div id="traceability-slideover" class="fixed top-0 right-0 min-h-[calc(100vh-64px)] md:h-screen w-full md:w-[500px] bg-slate-50 shadow-2xl z-[100] transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col border-l border-gray-200">
     
     <!-- Header Drawer -->
     <div class="bg-white border-b border-gray-200 p-4 flex justify-between items-start shrink-0">

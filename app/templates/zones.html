@@ -31,7 +31,7 @@
 <div class="p-6 w-full mx-auto space-y-6 flex flex-col h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar bg-slate-50">
 
     <!-- KPI TERRITORIAUX (EXACTEMENT 6 CARTES) -->
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 shrink-0">
+    <div class="grid grid-cols-1 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 shrink-0">
         <!-- KPI 1 -->
         <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
             <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Zones surveillées</h3>
@@ -67,11 +67,11 @@
     </div>
 
     <!-- SPLIT SCREEN : TABLEAU (10 Lignes Max) + CARTE SYNTHÈSE -->
-    <div class="flex flex-col lg:flex-row gap-6 flex-1 min-h-[500px]">
+    <div class="flex flex-col lg:flex-row gap-6 flex-1 min-min-h-[350px] md:h-[500px]">
         
         <!-- GAUCHE : TABLEAU DES ZONES PRIORITAIRES (70%) -->
         <div class="w-full lg:w-[70%] bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden flex flex-col">
-            <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+            <div class="p-4 border-b border-gray-200 bg-gray-50 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                 <h2 class="text-sm font-bold text-text-main uppercase tracking-wider flex items-center gap-2">
                     <span class="material-symbols-outlined text-[18px]">list</span> Zones Prioritaires
                 </h2>
@@ -212,7 +212,7 @@
 <!-- ========================================== -->
 <div id="import-modal" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col">
-        <div class="bg-sidebar p-4 flex justify-between items-center">
+        <div class="bg-sidebar p-4 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
             <h2 class="text-white font-bold text-sm flex items-center gap-2">
                 <span class="material-symbols-outlined">file_upload</span> Importer un territoire
             </h2>

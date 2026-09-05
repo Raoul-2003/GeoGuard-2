@@ -3,26 +3,26 @@
 
 {% block topbar %}
 <!-- COMMAND CENTER HEADER (70px height as requested) -->
-<header class="bg-white border-b border-gray-200 px-6 h-[70px] flex items-center justify-between sticky top-0 z-20 shrink-0 transition-colors duration-300" id="command-header">
-    <div class="flex flex-col justify-center h-full">
-        <h1 class="text-xl font-bold text-text-main leading-tight tracking-tight flex items-center gap-2">
-            <span class="material-symbols-outlined text-primary" id="header-icon">shield</span> GeoGuard Command Center
+<header class="bg-white border-b border-gray-200 px-4 md:px-6 h-[70px] flex items-center justify-between sticky top-0 z-20 shrink-0 transition-colors duration-300" id="command-header">
+    <div class="flex flex-col justify-center h-full max-w-[50%] md:max-w-none">
+        <h1 class="text-sm md:text-xl font-bold text-text-main leading-tight tracking-tight flex items-center gap-1 md:gap-2 truncate">
+            <span class="material-symbols-outlined text-primary text-[18px] md:text-[24px]" id="header-icon">shield</span> <span class="hidden sm:inline">GeoGuard Command Center</span><span class="sm:hidden">GeoGuard</span>
         </h1>
-        <p class="text-[11px] text-text-muted font-medium">Supervision intelligente du territoire en temps réel</p>
+        <p class="text-[9px] md:text-[11px] text-text-muted font-medium truncate hidden md:block">Supervision intelligente du territoire en temps réel</p>
     </div>
     
-    <div class="flex items-center gap-6">
-        <div class="hidden md:flex flex-col items-end border-r border-gray-200 pr-6">
+    <div class="flex items-center gap-2 md:gap-6">
+        <div class="hidden lg:flex flex-col items-end border-r border-gray-200 pr-6">
             <span class="text-[10px] text-text-muted uppercase font-bold tracking-wider mb-1">Dernière synchronisation</span>
             <span class="text-xs font-mono font-bold text-text-main">04/09/2026 - 13:20</span>
         </div>
         
-        <div class="flex items-center gap-2">
+        <div class="hidden md:flex items-center gap-2">
             <div class="w-2.5 h-2.5 rounded-full bg-[#16A34A] animate-pulse" id="status-dot"></div>
             <span class="text-xs font-bold text-text-main uppercase" id="status-text">Opérationnel</span>
         </div>
         
-        <div class="flex items-center gap-3 pl-4 border-l border-gray-200">
+        <div class="hidden md:flex items-center gap-3 pl-4 border-l border-gray-200">
             <div class="text-right">
                 <span class="block text-xs font-bold text-text-main">Directeur</span>
                 <span class="block text-[10px] text-text-muted">Profil Stratégique</span>
@@ -32,8 +32,8 @@
             </div>
         </div>
         
-        <button onclick="toggleCrisisMode()" id="btn-crisis" class="ml-2 bg-white border border-error text-error hover:bg-error hover:text-white rounded-[10px] px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
-            <span class="material-symbols-outlined text-[16px]">emergency</span> Mode Crise
+        <button onclick="toggleCrisisMode()" id="btn-crisis" class="ml-0 md:ml-2 bg-white border border-error text-error hover:bg-error hover:text-white rounded-[10px] px-2 md:px-3 py-1 md:py-1.5 text-[10px] md:text-xs font-bold flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[14px] md:text-[16px]">emergency</span> <span class="hidden sm:inline">Mode Crise</span><span class="sm:hidden">Crise</span>
         </button>
     </div>
 </header>
@@ -49,7 +49,7 @@
 <div class="p-6 w-full mx-auto space-y-6 flex flex-col h-[calc(100vh-70px)] overflow-y-auto custom-scrollbar bg-slate-50 transition-colors duration-300" id="main-container">
 
     <!-- LIGNE 1 : KPI STRATÉGIQUES (EXACTEMENT 6 CARTES) -->
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 shrink-0">
+    <div class="grid grid-cols-1 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 shrink-0">
         <!-- KPI 1 : Risque -->
         <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm crisis-border transition-colors">
             <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Niveau de risque</h3>
@@ -89,8 +89,8 @@
         </div>
     </div>
 
-    <!-- LIGNE 2 : CARTE (60%) & PANNEAU LATÉRAL (40%) -->
-    <div class="flex flex-col lg:flex-row gap-6 shrink-0 min-h-[500px]">
+    <!-- LIGNE 2 : CARTE CENTRALE (60%) ET PANNEAU DROIT (40%) -->
+    <div class="flex-1 flex flex-col lg:flex-row gap-6 min-min-h-[350px] md:h-[450px]">
         
         <!-- 60% MAP : Risk Overview -->
         <div class="w-full lg:w-[60%] bg-white border border-gray-200 rounded-2xl shadow-sm relative overflow-hidden crisis-border transition-colors flex flex-col">
@@ -135,7 +135,7 @@
 
             <!-- Alertes Prioritaires (Max 5) -->
             <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex-1 flex flex-col crisis-border transition-colors">
-                <div class="flex justify-between items-center mb-4">
+                <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
                     <h2 class="text-xs font-bold text-text-main uppercase tracking-wider">Alertes Prioritaires</h2>
                     <a href="/alertes" class="text-[10px] font-bold text-primary hover:underline">Voir toutes</a>
                 </div>
@@ -192,7 +192,7 @@
 
             <!-- Recommandations AI (Max 5) -->
             <div class="bg-white border border-primary/30 rounded-xl p-4 shadow-sm relative crisis-border transition-colors">
-                <div class="flex justify-between items-center mb-3">
+                <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-3">
                     <h2 class="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1">
                         <span class="material-symbols-outlined text-[16px]">psychology</span> Recommandations AI
                     </h2>

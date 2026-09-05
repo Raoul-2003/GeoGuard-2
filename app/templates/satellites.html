@@ -28,7 +28,7 @@
 <div class="p-6 w-full mx-auto space-y-6 flex flex-col h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar bg-slate-50">
 
     <!-- KPI IMAGERIE (EXACTEMENT 6 CARTES) -->
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 shrink-0">
+    <div class="grid grid-cols-1 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 shrink-0">
         <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
             <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Images disponibles</h3>
             <div class="text-2xl font-black text-text-main leading-tight">245 800</div>
@@ -114,7 +114,7 @@
                         <h4 class="text-xs font-bold text-text-main">Abidjan Nord (Banco)</h4>
                         <span class="text-[10px] text-text-muted font-bold">04/09/2026</span>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 mb-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
                         <div class="bg-gray-50 rounded p-1.5 text-center">
                             <span class="block text-[9px] text-text-muted uppercase">Qualité</span>
                             <span class="text-xs font-bold text-[#16A34A]">Excellent</span>
@@ -124,7 +124,7 @@
                             <span class="text-xs font-bold text-text-main">4 %</span>
                         </div>
                     </div>
-                    <div class="mt-auto grid grid-cols-2 gap-2">
+                    <div class="mt-auto grid grid-cols-1 md:grid-cols-2 gap-2">
                         <button onclick="toggleModal('expert-viewer-modal')" class="bg-sidebar hover:bg-sidebar/90 text-white rounded text-[10px] font-bold py-1.5 transition-colors shadow-sm col-span-2 flex justify-center items-center gap-1">
                             <span class="material-symbols-outlined text-[14px]">science</span> Mode Expert
                         </button>
@@ -147,7 +147,7 @@
                         <h4 class="text-xs font-bold text-text-main">Forêt de Taï (Radar)</h4>
                         <span class="text-[10px] text-text-muted font-bold">03/09/2026</span>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 mb-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
                         <div class="bg-gray-50 rounded p-1.5 text-center">
                             <span class="block text-[9px] text-text-muted uppercase">Qualité</span>
                             <span class="text-xs font-bold text-info">Bonne</span>
@@ -157,7 +157,7 @@
                             <span class="text-xs font-bold text-text-main">100 %</span>
                         </div>
                     </div>
-                    <div class="mt-auto grid grid-cols-2 gap-2">
+                    <div class="mt-auto grid grid-cols-1 md:grid-cols-2 gap-2">
                         <button onclick="toggleModal('expert-viewer-modal')" class="bg-sidebar hover:bg-sidebar/90 text-white rounded text-[10px] font-bold py-1.5 transition-colors shadow-sm col-span-2 flex justify-center items-center gap-1">
                             <span class="material-symbols-outlined text-[14px]">science</span> Mode Expert
                         </button>
@@ -179,7 +179,7 @@
                         <h4 class="text-xs font-bold text-text-main">Zone Périphérique {{ i+1 }}</h4>
                         <span class="text-[10px] text-text-muted font-bold">Hier</span>
                     </div>
-                    <div class="mt-auto grid grid-cols-2 gap-2">
+                    <div class="mt-auto grid grid-cols-1 md:grid-cols-2 gap-2">
                         <button class="bg-gray-100 hover:bg-gray-200 text-text-main rounded text-[10px] font-bold py-1.5 transition-colors col-span-2">Ouvrir</button>
                     </div>
                 </div>
@@ -196,7 +196,7 @@
 <div id="expert-viewer-modal" class="fixed inset-0 bg-black/90 z-[100] hidden flex flex-col backdrop-blur-md">
     
     <!-- Topbar Expert -->
-    <div class="h-14 bg-[#0a0a0a] border-b border-white/10 flex justify-between items-center px-4 shrink-0 text-white">
+    <div class="h-14 bg-[#0a0a0a] border-b border-white/10 flex flex-col md:flex-row md:justify-between md:items-center gap-4 px-4 shrink-0 text-white">
         <div class="flex items-center gap-4">
             <h2 class="text-sm font-bold flex items-center gap-2"><span class="material-symbols-outlined text-primary">science</span> GeoGuard Scientific Viewer</h2>
             <div class="w-px h-4 bg-white/20"></div>

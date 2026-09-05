@@ -28,7 +28,7 @@
 <div class="p-6 w-full mx-auto space-y-6 flex flex-col h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar bg-slate-50">
 
     <!-- KPI DOCUMENTAIRES (EXACTEMENT 5 CARTES) -->
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 shrink-0">
+    <div class="grid grid-cols-1 md:grid-cols-2 md:grid-cols-5 gap-4 shrink-0">
         <!-- KPI 1 -->
         <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
             <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Rapports générés</h3>
@@ -60,7 +60,7 @@
 
     <!-- BIBLIOTHÈQUE DOCUMENTAIRE (GeoGuard Document Center) -->
     <div class="bg-white border border-gray-200 rounded-2xl shadow-sm flex-1 flex flex-col overflow-hidden">
-        <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+        <div class="p-4 border-b border-gray-200 flex flex-col md:flex-row md:justify-between md:items-center gap-4 bg-gray-50">
             <h2 class="text-sm font-bold text-text-main flex items-center gap-2">
                 <span class="material-symbols-outlined text-primary text-[20px]">folder_open</span> GeoGuard Document Center
             </h2>
@@ -187,7 +187,7 @@
 <!-- ========================================== -->
 <div id="builder-modal" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]">
-        <div class="bg-sidebar p-5 flex justify-between items-center shrink-0">
+        <div class="bg-sidebar p-5 flex flex-col md:flex-row md:justify-between md:items-center gap-4 shrink-0">
             <h2 class="text-white font-bold text-lg flex items-center gap-2">
                 <span class="material-symbols-outlined">auto_awesome</span> GeoGuard AI Report Builder
             </h2>
@@ -286,7 +286,7 @@
     <div class="bg-slate-200 rounded-lg shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden relative">
         
         <!-- Workflow Bar (Humain in the loop) -->
-        <div class="bg-white border-b border-gray-300 p-3 flex justify-between items-center shrink-0">
+        <div class="bg-white border-b border-gray-300 p-3 flex flex-col md:flex-row md:justify-between md:items-center gap-4 shrink-0">
             <div class="flex items-center gap-4">
                 <span class="text-xs font-bold text-text-main flex items-center gap-1"><span class="material-symbols-outlined text-primary text-[16px]">edit</span> Mode Révision (Analyste)</span>
                 <span class="bg-[#f59e0b]/20 text-[#b45309] text-[10px] font-bold px-2 py-0.5 rounded uppercase">Brouillon IA</span>

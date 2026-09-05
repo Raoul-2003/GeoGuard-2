@@ -31,7 +31,7 @@
 <div class="p-6 w-full mx-auto space-y-6 flex flex-col h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar bg-slate-50">
 
     <!-- KPI ENVIRONNEMENTAUX (EXACTEMENT 6 CARTES) -->
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 shrink-0">
+    <div class="grid grid-cols-1 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 shrink-0">
         <!-- KPI 1 : Santé globale -->
         <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm relative overflow-hidden">
             <div class="absolute right-0 top-0 w-10 h-10 bg-[#16A34A]/10 rounded-bl-full"></div>
@@ -73,7 +73,7 @@
     </div>
 
     <!-- MAIN DASHBOARD CONTENT -->
-    <div class="flex flex-col lg:flex-row gap-6 flex-1 min-h-[400px]">
+    <div class="flex flex-col lg:flex-row gap-6 flex-1 min-min-h-[300px] md:h-[400px]">
         
         <!-- GAUCHE : SCORE & 5 ZONES PRIORITAIRES (40%) -->
         <div class="w-full lg:w-[40%] flex flex-col gap-6">
@@ -95,17 +95,17 @@
                         </div>
                     </div>
                     <div class="flex-1 space-y-2">
-                        <div class="flex justify-between items-center text-[10px] font-bold">
+                        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 text-[10px] font-bold">
                             <span class="text-text-muted">Végétation (30%)</span><span class="text-error">Baisse</span>
                         </div>
                         <div class="w-full h-1 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-error w-[40%]"></div></div>
                         
-                        <div class="flex justify-between items-center text-[10px] font-bold pt-1">
+                        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 text-[10px] font-bold pt-1">
                             <span class="text-text-muted">Eau (20%)</span><span class="text-primary">Stable</span>
                         </div>
                         <div class="w-full h-1 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-primary w-[80%]"></div></div>
                         
-                        <div class="flex justify-between items-center text-[10px] font-bold pt-1">
+                        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 text-[10px] font-bold pt-1">
                             <span class="text-text-muted">Biodiversité (20%)</span><span class="text-[#EA580C]">Menacée</span>
                         </div>
                         <div class="w-full h-1 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-[#EA580C] w-[60%]"></div></div>
@@ -115,7 +115,7 @@
 
             <!-- 5 Zones Prioritaires (Anti-surcharge) -->
             <div class="bg-white border border-gray-200 rounded-2xl shadow-sm flex-1 flex flex-col overflow-hidden">
-                <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                <div class="p-4 border-b border-gray-200 bg-gray-50 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                     <h2 class="text-sm font-bold text-text-main uppercase tracking-wider flex items-center gap-2">
                         <span class="material-symbols-outlined text-[18px]">priority_high</span> 5 Zones Prioritaires
                     </h2>
