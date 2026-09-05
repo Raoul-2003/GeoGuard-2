@@ -76,7 +76,7 @@
   }
 </script>
 </head>
-<body class="bg-background text-text-main font-sans min-h-[calc(100vh-64px)] md:min-h-[calc(100vh-64px)] md:h-screen overflow-hidden flex">
+<body class="bg-background text-text-main font-sans min-h-[100dvh] md:h-screen overflow-hidden flex">
 
 <!-- Mobile Header (Visible only on small screens) -->
 <div class="md:hidden fixed top-0 left-0 w-full h-16 bg-white border-b border-gray-200 z-30 flex items-center justify-between px-4">
@@ -247,10 +247,10 @@
 </div>
 
 <!-- GeoGuard Floating Assistant -->
-<button onclick="toggleAssistant()" class="fixed bottom-6 right-6 w-14 h-14 bg-primary hover:bg-primary/90 text-white rounded-full shadow-xl flex items-center justify-center z-[90] transition-transform hover:scale-110">
-    <span class="material-symbols-outlined text-[28px]">smart_toy</span>
+<button onclick="toggleAssistant()" class="fixed bottom-4 right-4 md:bottom-6 md:right-6 w-12 h-12 md:w-14 md:h-14 bg-primary hover:bg-primary/90 text-white rounded-full shadow-xl flex items-center justify-center z-[90] transition-transform hover:scale-110">
+    <span class="material-symbols-outlined text-[24px] md:text-[28px]">smart_toy</span>
 </button>
-<div id="ai-assistant-panel" class="fixed bottom-24 right-6 w-[350px] bg-white rounded-2xl shadow-2xl border border-gray-200 z-[90] hidden flex-col overflow-hidden transition-all origin-bottom-right">
+<div id="ai-assistant-panel" class="fixed bottom-20 right-4 md:bottom-24 md:right-6 w-[calc(100vw-32px)] md:w-[350px] bg-white rounded-2xl shadow-2xl border border-gray-200 z-[90] hidden flex-col overflow-hidden transition-all origin-bottom-right">
     <div class="bg-sidebar p-4 flex items-center justify-between">
         <div class="flex items-center gap-2">
             <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center"><span class="material-symbols-outlined text-white text-[18px]">assistant</span></div>

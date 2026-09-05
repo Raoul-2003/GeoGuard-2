@@ -3,15 +3,15 @@
 
 {% block topbar %}
 <!-- Custom GIS Header -->
-<header class="bg-white border-b border-gray-200 px-6 h-16 flex items-center justify-between z-10 sticky top-0 shrink-0">
-    <div class="flex items-center gap-6">
+<header class="bg-white border-b border-gray-200 px-4 md:px-6 h-[70px] md:h-16 flex items-center justify-between z-10 sticky top-0 shrink-0">
+    <div class="flex items-center gap-2 md:gap-6 w-full md:w-auto">
         <div class="flex flex-col">
-            <h1 class="text-lg font-bold text-text-main leading-tight">Carte opérationnelle</h1>
-            <p class="text-[11px] text-text-muted">Supervision géospatiale temps réel des territoires</p>
+            <h1 class="text-sm md:text-lg font-bold text-text-main leading-tight truncate max-w-[200px] md:max-w-none">Carte opérationnelle</h1>
+            <p class="text-[9px] md:text-[11px] text-text-muted hidden md:block">Supervision géospatiale temps réel des territoires</p>
         </div>
         
         <!-- Search Bar -->
-        <div class="bg-white-variant/50 border border-gray-200 rounded-md flex items-center px-3 h-9 w-[400px] focus-within:ring-1 focus-within:ring-primary focus-within:border-primary transition-all ml-4">
+        <div class="hidden lg:flex bg-white-variant/50 border border-gray-200 rounded-md items-center px-3 h-9 w-[400px] focus-within:ring-1 focus-within:ring-primary focus-within:border-primary transition-all ml-4">
             <span class="material-symbols-outlined text-text-muted mr-2 text-[18px]">search</span>
             <input class="bg-transparent border-none p-0 flex-1 text-sm font-medium placeholder-on-surface-variant/70 focus:ring-0 outline-none" placeholder="Rechercher une zone, coordonnée, alerte..." type="text"/>
             <button class="text-primary hover:text-sidebar transition-colors" title="Recherche IA Naturelle">
@@ -20,18 +20,18 @@
         </div>
     </div>
     
-    <div class="flex items-center gap-3">
-        <button class="bg-gray-50 hover:bg-white-variant text-text-main border border-gray-200 rounded px-3 py-1.5 text-xs font-medium flex items-center gap-1 transition-colors">
-            <span class="material-symbols-outlined text-[16px]">sensors</span> Mode Surveillance Live
+    <div class="flex items-center gap-2 md:gap-3">
+        <button class="hidden lg:flex bg-gray-50 hover:bg-white-variant text-text-main border border-gray-200 rounded px-3 py-1.5 text-xs font-medium items-center gap-1 transition-colors">
+            <span class="material-symbols-outlined text-[16px]">sensors</span> <span class="hidden xl:inline">Mode Surveillance Live</span>
         </button>
-        <button class="bg-gray-50 hover:bg-white-variant text-text-main border border-gray-200 rounded px-3 py-1.5 text-xs font-medium flex items-center gap-1 transition-colors">
-            <span class="material-symbols-outlined text-[16px]">science</span> Analyse spatiale
+        <button class="hidden md:flex bg-gray-50 hover:bg-white-variant text-text-main border border-gray-200 rounded px-3 py-1.5 text-xs font-medium items-center gap-1 transition-colors">
+            <span class="material-symbols-outlined text-[16px]">science</span> <span class="hidden lg:inline">Analyse spatiale</span>
         </button>
-        <button class="bg-gray-50 hover:bg-white-variant text-text-main border border-gray-200 rounded px-3 py-1.5 text-xs font-medium flex items-center gap-1 transition-colors" onclick="document.documentElement.requestFullscreen()">
-            <span class="material-symbols-outlined text-[16px]">fullscreen</span> Plein écran
+        <button class="hidden md:flex bg-gray-50 hover:bg-white-variant text-text-main border border-gray-200 rounded px-3 py-1.5 text-xs font-medium items-center gap-1 transition-colors" onclick="document.documentElement.requestFullscreen()">
+            <span class="material-symbols-outlined text-[16px]">fullscreen</span>
         </button>
-        <button class="bg-primary hover:bg-sidebar text-white rounded px-3 py-1.5 text-xs font-medium flex items-center gap-1 transition-colors">
-            <span class="material-symbols-outlined text-[16px]">file_download</span> Exporter
+        <button class="bg-primary hover:bg-sidebar text-white rounded px-2 md:px-3 py-1 md:py-1.5 text-xs font-medium flex items-center gap-1 transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[14px] md:text-[16px]">file_download</span> <span class="hidden sm:inline">Exporter</span>
         </button>
     </div>
 </header>

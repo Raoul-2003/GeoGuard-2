@@ -40,7 +40,7 @@
 <div class="flex flex-col h-[calc(100vh-64px)] w-full overflow-hidden bg-white-variant relative">
 
     <!-- TOP KPI BAR -->
-    <div class="w-full bg-white border-b border-gray-200 px-6 py-3 flex gap-4 overflow-x-auto shrink-0 z-10 shadow-sm">
+    <div class="w-full bg-white border-b border-gray-200 px-4 md:px-6 py-3 flex gap-4 overflow-x-auto custom-scrollbar shrink-0 z-10 shadow-sm">
         <div class="flex flex-col border-r border-gray-200 pr-4 min-w-[150px]">
             <span class="text-[10px] font-bold text-text-muted uppercase">État Environnemental</span>
             <div class="flex items-end gap-1 mt-1"><span class="text-2xl font-black text-primary leading-none">82</span><span class="text-xs text-text-muted">/100</span></div>
@@ -84,7 +84,7 @@
         </div>
 
         <!-- SCENARIO LAB (Hidden by default, toggled via button) -->
-        <div id="scenario-panel" class="absolute top-4 right-4 z-20 w-[400px] bg-white/95 backdrop-blur border border-gray-200 rounded-2xl shadow-xl flex flex-col max-h-[calc(100%-32px)] overflow-hidden transition-all hidden">
+        <div id="scenario-panel" class="absolute top-4 right-4 z-20 w-[calc(100vw-32px)] md:w-[400px] bg-white/95 backdrop-blur border border-gray-200 rounded-2xl shadow-xl flex flex-col max-h-[calc(100%-32px)] overflow-hidden transition-all hidden">
             
             <div class="bg-sidebar p-4 flex items-center justify-between">
                 <div class="flex items-center gap-2">
@@ -134,7 +134,7 @@
         </div>
 
         <!-- Historical Timeline (Bottom) -->
-        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 w-[600px] bg-black/80 backdrop-blur border border-white/10 rounded-full shadow-2xl p-2 flex items-center gap-4">
+        <div class="absolute bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 z-10 w-[95%] md:w-[600px] bg-black/80 backdrop-blur border border-white/10 rounded-full shadow-2xl p-1.5 md:p-2 flex items-center gap-2 md:gap-4 overflow-hidden">
             <button id="play-btn" class="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-primary transition-colors">
                 <span id="play-icon" class="material-symbols-outlined text-[18px]">play_arrow</span>
             </button>
